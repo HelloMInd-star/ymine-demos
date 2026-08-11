@@ -1,0 +1,257 @@
+/* ============================================================
+   扑克压力 Demo · 视觉升级补丁
+   叠加在旧样式上，仅包含该 Demo 专属的视觉增强
+   ============================================================ */
+
+/* --- 页面头部升级 --- */
+.page-header {
+  position: relative;
+  padding: 50px 0 36px !important;
+  text-align: center;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 250px;
+  background:
+    radial-gradient(ellipse at 40% 50%, rgba(167, 139, 250, 0.12), transparent 60%),
+    radial-gradient(ellipse at 60% 40%, rgba(251, 191, 36, 0.08), transparent 55%);
+  pointer-events: none;
+}
+
+.page-header h1 {
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 0%,
+    var(--sp-color, #FBBF24) 25%,
+    var(--purple) 50%,
+    var(--nt-color, #22D3EE) 75%,
+    var(--text-primary) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleShine 4s ease-in-out infinite;
+  font-family: var(--font-display);
+  font-size: 36px !important;
+  position: relative;
+}
+
+.page-header p {
+  position: relative;
+}
+
+/* --- 气质标签筛选栏 --- */
+.temperament-filter {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.temp-filter-btn {
+  padding: 4px 14px;
+  font-size: 11px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: rgba(167, 139, 250, 0.05);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.05em;
+}
+
+.temp-filter-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.temp-filter-btn.active-nt { background: var(--nt-color-bg); border-color: rgba(34, 211, 238, 0.4); color: var(--nt-color); }
+.temp-filter-btn.active-nf { background: var(--nf-color-bg); border-color: rgba(244, 114, 182, 0.4); color: var(--nf-color); }
+.temp-filter-btn.active-sj { background: var(--sj-color-bg); border-color: rgba(167, 139, 250, 0.4); color: var(--sj-color); }
+.temp-filter-btn.active-sp { background: var(--sp-color-bg); border-color: rgba(251, 191, 36, 0.4); color: var(--sp-color); }
+
+/* --- 牌桌区域增强：赌场氛围感 --- */
+.poker-table {
+  position: relative;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(34, 197, 94, 0.08), transparent 60%),
+    rgba(20, 18, 45, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.poker-table::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(251, 191, 36, 0.06), transparent 50%),
+    radial-gradient(ellipse at 20% 20%, rgba(34, 211, 238, 0.05), transparent 40%);
+  pointer-events: none;
+}
+
+/* --- 玩家信息卡增强 --- */
+.player-card {
+  position: relative;
+  background: rgba(20, 18, 45, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  transition: all var(--transition);
+}
+
+.player-card.active {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+}
+
+.player-card.folded {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+}
+
+.player-card .player-name {
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--text-primary), var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.player-card .player-chips {
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+/* --- 扑克牌样式增强 --- */
+.poker-card {
+  width: 50px;
+  height: 70px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #1a1a3a, #0d0d24);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all var(--transition);
+}
+
+.poker-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(167, 139, 250, 0.2);
+}
+
+.poker-card.red { color: #F87171; border-color: rgba(248, 113, 113, 0.3); }
+.poker-card.black { color: var(--text-primary); }
+
+/* --- 操作按钮增强 --- */
+.action-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 13px;
+  transition: all var(--transition);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.action-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.action-btn:hover::after {
+  left: 150%;
+}
+
+.action-btn.raise {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(167, 139, 250, 0.08));
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.action-btn.call {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(34, 211, 238, 0.05));
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.action-btn.fold {
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.15), rgba(248, 113, 113, 0.05));
+  border-color: #F87171;
+  color: #F87171;
+}
+
+/* --- 筹码堆视觉 --- */
+.chip-stack {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #D97706);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* --- 压力指示器 --- */
+.pressure-gauge {
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.pressure-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #34D399, #FBBF24, #F87171);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+}

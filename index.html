@@ -3,182 +3,537 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Y.MINE 人格实验室</title>
+  <title>Y.MINE 人格实验室 — 探索你人格的无限可能</title>
+  <meta name="description" content="Y.MINE 人格实验室 - 用调酒、音乐、棋风等趣味方式探索你的人格维度">
   <link rel="stylesheet" href="shared/styles.css">
   <style>
+    /* ---------- Hero 区域 ---------- */
     .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4xl) var(--space-lg);
       text-align: center;
-      padding: 60px 0 40px;
+      position: relative;
     }
-    .hero h1 {
-      font-family: var(--font-display);
-      font-size: 42px;
-      letter-spacing: 0.08em;
-      margin-bottom: 12px;
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      border-radius: var(--radius-full);
+      font-size: var(--fs-micro);
+      color: var(--primary-purple-light);
+      letter-spacing: 0.15em;
+      margin-bottom: var(--space-xl);
+      animation: fadeInUp 0.8s ease;
     }
-    .hero p {
+
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--neon-cyan);
+      border-radius: 50%;
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .hero-title-wrap {
+      margin-bottom: var(--space-lg);
+      animation: fadeInUp 0.8s ease 0.1s both;
+    }
+
+    .hero-title-en {
+      font-size: var(--fs-micro);
+      letter-spacing: 0.5em;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+      text-transform: uppercase;
+    }
+
+    .hero-subtitle {
+      animation: fadeInUp 0.8s ease 0.2s both;
+      max-width: 500px;
+      margin: 0 auto var(--space-xl);
+      font-size: var(--fs-h3);
+      font-weight: var(--fw-light);
       color: var(--text-secondary);
-      font-size: 14px;
-      margin-bottom: 4px;
+      letter-spacing: 0.15em;
     }
+
+    .hero-narrative {
+      font-size: var(--fs-body);
+      color: var(--text-secondary);
+      max-width: 560px;
+      line-height: 2;
+      margin-bottom: var(--space-2xl);
+      animation: fadeInUp 0.8s ease 0.3s both;
+    }
+
+    .hero-narrative em {
+      font-style: normal;
+      color: var(--amber-gold-light);
+    }
+
+    .hero-cta-group {
+      display: flex;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: var(--space-2xl);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      color: var(--text-muted);
+      font-size: var(--fs-micro);
+      letter-spacing: 0.2em;
+      animation: fadeInUp 0.8s ease 0.6s both, float 3s ease-in-out 1.4s infinite;
+    }
+
+    .hero-scroll-hint::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(180deg, var(--primary-purple), transparent);
+    }
+
+    /* ---------- Demo 网格 ---------- */
+    .demos-section {
+      padding: var(--space-4xl) 0;
+    }
+
     .demos-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      padding: 0 0 60px;
+      gap: var(--space-lg);
     }
-    @media (max-width: 768px) {
-      .demos-grid { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 28px; }
-    }
-    @media (min-width: 769px) and (max-width: 1024px) {
+
+    @media (max-width: 1024px) {
       .demos-grid { grid-template-columns: repeat(2, 1fr); }
     }
+
+    @media (max-width: 640px) {
+      .demos-grid { grid-template-columns: 1fr; }
+    }
+
     .demo-card {
+      position: relative;
       display: block;
       text-decoration: none;
-      padding: 28px;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: all var(--transition-base);
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    .demo-card:nth-child(1) { animation-delay: 0.1s; }
+    .demo-card:nth-child(2) { animation-delay: 0.15s; }
+    .demo-card:nth-child(3) { animation-delay: 0.2s; }
+    .demo-card:nth-child(4) { animation-delay: 0.25s; }
+    .demo-card:nth-child(5) { animation-delay: 0.3s; }
+    .demo-card:nth-child(6) { animation-delay: 0.35s; }
+
+    .demo-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .demo-card-top {
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary-purple), var(--neon-cyan));
+    }
+
+    .demo-card-body {
+      padding: var(--space-xl);
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all var(--transition-base);
+      height: 100%;
+    }
+
+    .demo-card:hover .demo-card-body {
+      border-color: rgba(167, 139, 250, 0.35);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 20px 50px rgba(0, 0, 0, 0.4),
+        0 0 40px rgba(167, 139, 250, 0.12);
+    }
+
+    .demo-emoji {
+      font-size: 2.5rem;
+      margin-bottom: var(--space-md);
+      display: block;
+      transition: transform var(--transition-bounce);
+    }
+
+    .demo-card:hover .demo-emoji {
+      transform: scale(1.1) rotate(-5deg);
+    }
+
+    .demo-name {
+      font-size: var(--fs-h3);
+      font-weight: var(--fw-bold);
+      margin-bottom: var(--space-xs);
+      background: linear-gradient(135deg, var(--text-primary), var(--primary-purple-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .demo-description {
+      font-size: var(--fs-small);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: var(--space-md);
+    }
+
+    .demo-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .demo-badge {
+      position: absolute;
+      top: var(--space-md);
+      right: var(--space-md);
+      font-size: var(--fs-micro);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-weight: var(--fw-semibold);
+      letter-spacing: 0.05em;
+    }
+
+    .demo-badge-live {
+      background: rgba(34, 211, 238, 0.15);
+      color: var(--neon-cyan);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+    }
+
+    /* ---------- 气质四象限 ---------- */
+    .temperaments-section {
+      padding: var(--space-4xl) 0;
+      position: relative;
+    }
+
+    .temp-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+    }
+
+    @media (max-width: 768px) {
+      .temp-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .temp-card {
+      padding: var(--space-lg);
       border-radius: var(--radius-lg);
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      transition: all var(--transition);
+      text-align: center;
+      transition: all var(--transition-base);
       position: relative;
       overflow: hidden;
-      animation: fadeIn 0.5s ease-out;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
     }
-    .demo-card:hover {
-      border-color: var(--purple);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(167, 139, 250, 0.12);
+
+    .temp-card:hover {
+      transform: translateY(-4px);
     }
-    .demo-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--purple), transparent);
-      opacity: 0;
-      transition: opacity var(--transition);
+
+    .temp-card.nt { border-color: rgba(34, 211, 238, 0.3); }
+    .temp-card.nt:hover { box-shadow: 0 0 30px rgba(34, 211, 238, 0.15); }
+    .temp-card.nf { border-color: rgba(244, 114, 182, 0.3); }
+    .temp-card.nf:hover { box-shadow: 0 0 30px rgba(244, 114, 182, 0.15); }
+    .temp-card.sj { border-color: rgba(167, 139, 250, 0.3); }
+    .temp-card.sj:hover { box-shadow: 0 0 30px rgba(167, 139, 250, 0.15); }
+    .temp-card.sp { border-color: rgba(251, 191, 36, 0.3); }
+    .temp-card.sp:hover { box-shadow: 0 0 30px rgba(251, 191, 36, 0.15); }
+
+    .temp-emoji {
+      font-size: 2rem;
+      margin-bottom: var(--space-sm);
     }
-    .demo-card:hover::before { opacity: 1; }
-    .demo-card.coming-soon {
-      opacity: 0.5;
-      pointer-events: none;
+
+    .temp-name {
+      font-size: var(--fs-h4);
+      font-weight: var(--fw-bold);
+      margin-bottom: 2px;
     }
-    .demo-card .emoji {
-      font-size: 32px;
-      margin-bottom: 12px;
-      display: block;
+
+    .temp-card.nt .temp-name { color: var(--nt-color); }
+    .temp-card.nf .temp-name { color: var(--nf-color); }
+    .temp-card.sj .temp-name { color: var(--sj-color); }
+    .temp-card.sp .temp-name { color: var(--sp-color); }
+
+    .temp-role {
+      font-size: var(--fs-micro);
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
     }
-    .demo-card h3 {
-      font-size: 16px;
-      margin-bottom: 6px;
-      color: var(--purple);
-    }
-    .demo-card .desc {
-      font-size: 12px;
+
+    .temp-poem {
+      font-size: var(--fs-small);
       color: var(--text-secondary);
-      line-height: 1.5;
+      margin-top: var(--space-sm);
+      line-height: 1.6;
+      font-style: italic;
+      opacity: 0.8;
     }
-    .demo-card .badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      background: rgba(167, 139, 250, 0.12);
-      color: var(--purple);
-      border: 1px solid rgba(167, 139, 250, 0.2);
-    }
-    .demo-card .badge-live {
-      background: rgba(34, 211, 238, 0.12);
-      color: var(--cyan);
-      border-color: rgba(34, 211, 238, 0.2);
-    }
-    footer {
+
+    /* ---------- 页脚 ---------- */
+    .site-footer {
+      padding: var(--space-3xl) 0 var(--space-xl);
+      border-top: 1px solid var(--glass-border);
       text-align: center;
-      padding: 40px 0;
-      border-top: 1px solid var(--border);
+      margin-top: var(--space-4xl);
     }
-    footer a {
+
+    .footer-brand {
+      font-size: var(--fs-h3);
+      font-weight: var(--fw-bold);
+      background: linear-gradient(135deg, var(--primary-purple-light), var(--amber-gold));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: var(--space-sm);
+    }
+
+    .footer-tagline {
+      font-size: var(--fs-small);
       color: var(--text-secondary);
-      font-size: 12px;
-      text-decoration: none;
-      transition: color var(--transition);
+      margin-bottom: var(--space-lg);
     }
-    footer a:hover { color: var(--purple); }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      font-size: var(--fs-small);
+      color: var(--text-muted);
+      transition: color var(--transition-fast);
+    }
+
+    .footer-link:hover {
+      color: var(--primary-purple-light);
+    }
+
+    .footer-copyright {
+      font-size: var(--fs-micro);
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Hero -->
-    <div class="hero">
-      <h1 class="text-purple">Y.MINE 人格实验室</h1>
-      <p>多场景人格校准 Demo · 从偏好到压力</p>
-      <p style="color:var(--text-muted);font-size:12px;margin-top:8px;">
-        六维人格向量 (TOL/SPD/INF/ENT/LEAD/VIS) 驱动 · 深空科技风
-      </p>
+  <!-- Hero 区域 -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Y.MINE PERSONALITY LAB
     </div>
 
-    <!-- Demo 网格 -->
-    <div class="demos-grid">
-      <!-- 人格调酒 · P0 已完成 -->
-      <a href="cocktail/" class="demo-card">
-        <span class="emoji">🍸</span>
-        <span class="badge badge-live">LIVE</span>
-        <h3>人格调酒</h3>
-        <p class="desc">六维向量 → 风味偏好 → 3 款酒品推荐<br>支持分子视图 + 时段推荐</p>
-      </a>
-
-      <!-- 人格音乐 · P0 已完成 -->
-      <a href="music/" class="demo-card">
-        <span class="emoji">🎵</span>
-        <span class="badge badge-live">LIVE</span>
-        <h3>人格音乐</h3>
-        <p class="desc">六维向量 → 音乐风格推荐 + 氛围音频<br>Web Audio API 实时合成</p>
-      </a>
-
-      <!-- 棋风投资 -->
-      <a href="chess/" class="demo-card">
-        <span class="emoji">♟️</span>
-        <span class="badge badge-live">LIVE</span>
-        <h3>棋风投资</h3>
-        <p class="desc">棋局行为 → 3D 坐标 → 投资人匹配<br>金融孪生 · 16 位投资人画像 · 4 组棋风</p>
-      </a>
-
-      <!-- 扑克压力 -->
-      <a href="poker/" class="demo-card">
-        <span class="emoji">♠️</span>
-        <span class="badge badge-live">LIVE</span>
-        <h3>扑克压力</h3>
-        <p class="desc">Poker Face Arena 彩蛋简化版<br>压力测试 · 人格驱动的 AI 对手</p>
-      </a>
-
-      <!-- 平衡分析 -->
-      <a href="balance/" class="demo-card">
-        <span class="emoji">⚖️</span>
-        <span class="badge badge-live">LIVE</span>
-        <h3>平衡分析</h3>
-        <p class="desc">16 型 MBTI 胜率分布 · 博弈论<br>纳什均衡 · 人格校准报告</p>
-      </a>
-
-      <!-- 人格护照 -->
-      <a href="passport/" class="demo-card">
-        <span class="emoji">🪪</span>
-        <span class="badge badge-live">LIVE</span>
-        <h3>人格护照</h3>
-        <p class="desc">六维向量可视化护照<br>可分享的人格名片 · 9 种人格原型</p>
-      </a>
+    <div class="hero-title-wrap">
+      <div class="hero-title-en">Personality Laboratory</div>
+      <h1 class="hero-title" data-text="Y.MINE 人格实验室">Y.MINE 人格实验室</h1>
     </div>
 
-    <footer>
-      <a href="https://hellomind-star.github.io/ymine-demos/" target="_blank" rel="noopener">
-        github.com/hellomind-star/ymine-demos
-      </a>
-      <span style="color:var(--text-muted);margin:0 12px;">·</span>
-      <span style="color:var(--text-muted);font-size:12px;">Y.Mine 人格调酒系统 © 2026</span>
-    </footer>
-  </div>
+    <p class="hero-subtitle">探索你人格的无限可能</p>
+
+    <p class="hero-narrative">
+      六维人格向量驱动，从<em>调酒</em>到<em>音乐</em>，
+      从<em>棋风</em>到<em>博弈</em>，
+      在每一种场景里，遇见不同的自己。
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="host-intro/" class="btn btn-primary btn-shimmer">🚪 进入主理人入口</a>
+      <a href="#demos" class="btn btn-ghost">探索全部 Demo</a>
+    </div>
+
+    <div class="hero-scroll-hint">
+      SCROLL
+    </div>
+  </section>
+
+  <!-- 气质四象限 -->
+  <section class="temperaments-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">四气质主理人</h2>
+        <p class="section-desc">四种气质，四盏夜灯，照亮你人格的不同切面</p>
+      </div>
+
+      <div class="temp-grid">
+        <div class="temp-card nt">
+          <div class="temp-emoji">🌙</div>
+          <div class="temp-name">夜航员</div>
+          <div class="temp-role">NT · 理性直觉</div>
+          <div class="temp-poem">在思想的深海航行<br>灯塔是逻辑的光</div>
+        </div>
+        <div class="temp-card nf">
+          <div class="temp-emoji">🌸</div>
+          <div class="temp-name">策展人</div>
+          <div class="temp-role">NF · 情感直觉</div>
+          <div class="temp-poem">把感受调成一杯酒<br>让灵魂有处安放</div>
+        </div>
+        <div class="temp-card sj">
+          <div class="temp-emoji">🏰</div>
+          <div class="temp-name">守夜人</div>
+          <div class="temp-role">SJ · 实感判断</div>
+          <div class="temp-poem">秩序是夜的骨架<br>每一步都落在实处</div>
+        </div>
+        <div class="temp-card sp">
+          <div class="temp-emoji">✨</div>
+          <div class="temp-name">调音师</div>
+          <div class="temp-role">SP · 实感感知</div>
+          <div class="temp-poem">用感官调试世界<br>此刻即是全部</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider-gradient"></div>
+
+  <!-- Demo 网格 -->
+  <section class="demos-section" id="demos">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">六款人格 Demo</h2>
+        <p class="section-desc">六维向量驱动，每个场景都是一面镜子</p>
+      </div>
+
+      <div class="demos-grid">
+        <!-- 人格调酒 -->
+        <a href="cocktail/" class="demo-card shimmer">
+          <div class="demo-card-top"></div>
+          <div class="demo-card-body">
+            <span class="demo-badge demo-badge-live">LIVE</span>
+            <span class="demo-emoji">🍸</span>
+            <h3 class="demo-name">人格调酒</h3>
+            <p class="demo-description">六维向量 → 风味偏好 → 3 款酒品推荐，支持分子视图 + 时段推荐</p>
+            <div class="demo-tags">
+              <span class="tag tag-sj">守序者</span>
+              <span class="tag tag-nf">月潮者</span>
+              <span class="tag tag-sp">焰心者</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 人格音乐 -->
+        <a href="music/" class="demo-card shimmer">
+          <div class="demo-card-top"></div>
+          <div class="demo-card-body">
+            <span class="demo-badge demo-badge-live">LIVE</span>
+            <span class="demo-emoji">🎵</span>
+            <h3 class="demo-name">人格音乐</h3>
+            <p class="demo-description">六维向量 → 音乐风格推荐 + 氛围音频，Web Audio API 实时合成</p>
+            <div class="demo-tags">
+              <span class="tag tag-sp">调音师</span>
+              <span class="tag tag-nf">策展人</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 棋风投资 -->
+        <a href="chess/" class="demo-card shimmer">
+          <div class="demo-card-top"></div>
+          <div class="demo-card-body">
+            <span class="demo-badge demo-badge-live">LIVE</span>
+            <span class="demo-emoji">♟️</span>
+            <h3 class="demo-name">棋风投资</h3>
+            <p class="demo-description">棋局行为 → 3D 坐标 → 投资人匹配，金融孪生 · 16 位投资人画像</p>
+            <div class="demo-tags">
+              <span class="tag tag-nt">夜航员</span>
+              <span class="tag tag-sj">守夜人</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 扑克压力 -->
+        <a href="poker/" class="demo-card shimmer">
+          <div class="demo-card-top"></div>
+          <div class="demo-card-body">
+            <span class="demo-badge demo-badge-live">LIVE</span>
+            <span class="demo-emoji">♠️</span>
+            <h3 class="demo-name">扑克压力</h3>
+            <p class="demo-description">Poker Face Arena 彩蛋简化版，压力测试 · 人格驱动的 AI 对手</p>
+            <div class="demo-tags">
+              <span class="tag tag-sp">实战派</span>
+              <span class="tag tag-nt">策略家</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 平衡分析 -->
+        <a href="balance/" class="demo-card shimmer">
+          <div class="demo-card-top"></div>
+          <div class="demo-card-body">
+            <span class="demo-badge demo-badge-live">LIVE</span>
+            <span class="demo-emoji">⚖️</span>
+            <h3 class="demo-name">平衡分析</h3>
+            <p class="demo-description">16 型 MBTI 胜率分布 · 博弈论 · 纳什均衡 · 人格校准报告</p>
+            <div class="demo-tags">
+              <span class="tag tag-nt">分析师</span>
+              <span class="tag tag-sj">数据派</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 人格护照 -->
+        <a href="passport/" class="demo-card shimmer">
+          <div class="demo-card-top"></div>
+          <div class="demo-card-body">
+            <span class="demo-badge demo-badge-live">LIVE</span>
+            <span class="demo-emoji">🪪</span>
+            <h3 class="demo-name">人格护照</h3>
+            <p class="demo-description">六维向量可视化护照，可分享的人格名片 · 9 种人格原型</p>
+            <div class="demo-tags">
+              <span class="tag tag-nf">理想主义</span>
+              <span class="tag tag-sj">守护型</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-brand">Y.MINE 人格实验室</div>
+      <div class="footer-tagline">在每一种场景里，遇见不同的自己</div>
+      <div class="footer-links">
+        <a href="host-intro/" class="footer-link">主理人入口</a>
+        <a href="#demos" class="footer-link">全部 Demo</a>
+        <a href="https://github.com/HelloMInd-star/ymine-demos" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+      </div>
+      <div class="footer-copyright">Y.MINE 人格实验室 © 2026 · 深空紫金版</div>
+    </div>
+  </footer>
 </body>
 </html>

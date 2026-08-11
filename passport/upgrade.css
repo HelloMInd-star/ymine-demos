@@ -1,0 +1,179 @@
+/* ============================================================
+   人格护照 Demo · 视觉升级补丁
+   叠加在旧样式上，仅包含该 Demo 专属的视觉增强
+   ============================================================ */
+
+/* --- 页面头部升级 --- */
+.page-header {
+  position: relative;
+  padding: 50px 0 36px !important;
+  text-align: center;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 250px;
+  background: radial-gradient(ellipse, rgba(167, 139, 250, 0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.page-header h1 {
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 0%,
+    var(--purple) 30%,
+    var(--gold) 50%,
+    var(--purple) 70%,
+    var(--text-primary) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleShine 4s ease-in-out infinite;
+  font-family: var(--font-display);
+  font-size: 36px !important;
+  position: relative;
+}
+
+.page-header p {
+  position: relative;
+}
+
+/* --- 气质标签筛选栏 --- */
+.temperament-filter {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.temp-filter-btn {
+  padding: 4px 14px;
+  font-size: 11px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: rgba(167, 139, 250, 0.05);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.05em;
+}
+
+.temp-filter-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.temp-filter-btn.active-nt { background: var(--nt-color-bg); border-color: rgba(34, 211, 238, 0.4); color: var(--nt-color); }
+.temp-filter-btn.active-nf { background: var(--nf-color-bg); border-color: rgba(244, 114, 182, 0.4); color: var(--nf-color); }
+.temp-filter-btn.active-sj { background: var(--sj-color-bg); border-color: rgba(167, 139, 250, 0.4); color: var(--sj-color); }
+.temp-filter-btn.active-sp { background: var(--sp-color-bg); border-color: rgba(251, 191, 36, 0.4); color: var(--sp-color); }
+
+/* --- 护照卡片增强：金边磨砂 + 悬浮光晕 --- */
+.passport-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(20, 18, 45, 0.55) !important;
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  border: 1px solid rgba(251, 191, 36, 0.2) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(251, 191, 36, 0.08),
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(251, 191, 36, 0.05) !important;
+  transition: all var(--transition) !important;
+}
+
+.passport-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--purple), transparent);
+  opacity: 0.6;
+}
+
+.passport-card:hover {
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(251, 191, 36, 0.12),
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(251, 191, 36, 0.1) !important;
+  transform: translateY(-4px);
+}
+
+/* --- 护照头部 --- */
+.passport-header {
+  position: relative;
+  border-bottom: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+/* --- 护照底部 --- */
+.passport-footer {
+  border-top: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+/* --- 向量条增强 --- */
+.vector-bar {
+  position: relative;
+}
+
+.v-fill {
+  background: linear-gradient(90deg, var(--purple), var(--gold)) !important;
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.4);
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.v-bar {
+  background: rgba(167, 139, 250, 0.1) !important;
+  border-radius: 3px;
+}
+
+.v-label {
+  color: var(--text-secondary);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.v-value {
+  color: var(--gold) !important;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* --- 原型芯片增强 --- */
+.archetype-chip {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(251, 191, 36, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition);
+}
+
+.archetype-chip:hover {
+  border-color: var(--purple);
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.15);
+}
+
+.archetype-chip .archetype-emoji {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 10px rgba(167, 139, 250, 0.4));
+}
+
+.archetype-chip .archetype-name {
+  background: linear-gradient(135deg, var(--purple-light, var(--purple)), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}

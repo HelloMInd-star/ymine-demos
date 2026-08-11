@@ -1,0 +1,202 @@
+/* ============================================================
+   人格音乐 Demo · 视觉升级补丁
+   叠加在旧样式上，仅包含该 Demo 专属的视觉增强
+   ============================================================ */
+
+/* --- 页面头部升级：音乐律动氛围感 --- */
+.page-header {
+  position: relative;
+  padding: 50px 0 36px !important;
+  text-align: center;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 450px;
+  height: 280px;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(244, 114, 182, 0.1), transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(167, 139, 250, 0.12), transparent 60%);
+  pointer-events: none;
+}
+
+.page-header h1 {
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 0%,
+    var(--nf-color, #F472B6) 30%,
+    var(--purple) 50%,
+    var(--gold) 70%,
+    var(--text-primary) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleShine 4s ease-in-out infinite;
+  font-family: var(--font-display);
+  font-size: 36px !important;
+  position: relative;
+}
+
+.page-header p {
+  position: relative;
+}
+
+/* --- 气质标签筛选栏 --- */
+.temperament-filter {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.temp-filter-btn {
+  padding: 4px 14px;
+  font-size: 11px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: rgba(167, 139, 250, 0.05);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.05em;
+}
+
+.temp-filter-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.temp-filter-btn.active-nt { background: var(--nt-color-bg); border-color: rgba(34, 211, 238, 0.4); color: var(--nt-color); }
+.temp-filter-btn.active-nf { background: var(--nf-color-bg); border-color: rgba(244, 114, 182, 0.4); color: var(--nf-color); }
+.temp-filter-btn.active-sj { background: var(--sj-color-bg); border-color: rgba(167, 139, 250, 0.4); color: var(--sj-color); }
+.temp-filter-btn.active-sp { background: var(--sp-color-bg); border-color: rgba(251, 191, 36, 0.4); color: var(--sp-color); }
+
+/* --- 播放列表卡片增强 --- */
+.playlist-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(20, 18, 45, 0.5) !important;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(167, 139, 250, 0.18) !important;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition) !important;
+}
+
+.playlist-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--nf-color, #F472B6), var(--purple), transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.playlist-card:hover {
+  border-color: rgba(244, 114, 182, 0.4) !important;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(244, 114, 182, 0.1) !important;
+  transform: translateY(-3px);
+}
+
+.playlist-card:hover::before {
+  opacity: 1;
+}
+
+.playlist-card .track-name {
+  background: linear-gradient(135deg, var(--text-primary), var(--nf-color, #F472B6));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+.playlist-card .track-artist {
+  color: var(--text-secondary);
+}
+
+.playlist-card .track-genre {
+  font-size: 10px;
+  color: var(--gold);
+  background: rgba(251, 191, 36, 0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* --- 音频可视化区域 --- */
+.visualizer-area {
+  position: relative;
+  background: rgba(20, 18, 45, 0.4);
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.visualizer-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(167, 139, 250, 0.1), transparent 60%),
+    radial-gradient(ellipse at 30% 50%, rgba(244, 114, 182, 0.08), transparent 50%);
+  pointer-events: none;
+}
+
+/* --- 控制面板增强 --- */
+.control-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.control-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--purple), var(--nf-color, #F472B6), transparent);
+  opacity: 0.5;
+}
+
+.panel-title {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, var(--purple), var(--nf-color, #F472B6));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* --- 播放按钮发光效果 --- */
+.play-btn {
+  position: relative;
+}
+
+.play-btn.playing {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* --- 音乐均衡条动画 --- */
+@keyframes eqBar {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+.eq-bar {
+  animation: eqBar 0.8s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+.eq-bar:nth-child(1) { animation-delay: 0s; }
+.eq-bar:nth-child(2) { animation-delay: 0.1s; }
+.eq-bar:nth-child(3) { animation-delay: 0.2s; }
+.eq-bar:nth-child(4) { animation-delay: 0.3s; }
+.eq-bar:nth-child(5) { animation-delay: 0.15s; }

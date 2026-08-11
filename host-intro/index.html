@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>主理人入口 · Y.MINE 人格实验室</title>
+  <meta name="description" content="选择你的主理人，进入属于你的人格探索之旅">
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4xl) var(--space-lg);
+    }
+
+    .back-link {
+      position: fixed;
+      top: var(--space-lg);
+      left: var(--space-lg);
+      font-size: var(--fs-small);
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+      z-index: 10;
+    }
+
+    .back-link:hover {
+      color: var(--primary-purple-light);
+    }
+
+    .intro-header {
+      text-align: center;
+      margin-bottom: var(--space-3xl);
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .intro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      border-radius: var(--radius-full);
+      font-size: var(--fs-micro);
+      color: var(--primary-purple-light);
+      letter-spacing: 0.15em;
+      margin-bottom: var(--space-lg);
+    }
+
+    .intro-title {
+      font-size: var(--fs-display);
+      font-weight: var(--fw-bold);
+      background: linear-gradient(135deg, var(--text-primary), var(--primary-purple-light), var(--amber-gold-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: var(--space-md);
+      letter-spacing: 0.08em;
+    }
+
+    .intro-subtitle {
+      font-size: var(--fs-body);
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .intro-subtitle em {
+      font-style: normal;
+      color: var(--amber-gold-light);
+    }
+
+    .hosts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-lg);
+      max-width: 1000px;
+      width: 100%;
+      margin-bottom: var(--space-3xl);
+    }
+
+    @media (max-width: 900px) {
+      .hosts-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+      .hosts-grid { grid-template-columns: 1fr; }
+    }
+
+    .host-card {
+      position: relative;
+      padding: var(--space-xl) var(--space-lg);
+      border-radius: var(--radius-xl);
+      text-align: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all var(--transition-base);
+      text-decoration: none;
+      display: block;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    .host-card:nth-child(1) { animation-delay: 0.1s; }
+    .host-card:nth-child(2) { animation-delay: 0.2s; }
+    .host-card:nth-child(3) { animation-delay: 0.3s; }
+    .host-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .host-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        circle at 50% 0%,
+        var(--host-glow, rgba(167, 139, 250, 0.2)),
+        transparent 60%
+      );
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+
+    .host-card:hover::before {
+      opacity: 1;
+    }
+
+    .host-card:hover {
+      transform: translateY(-8px) scale(1.02);
+    }
+
+    .host-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .host-emoji {
+      font-size: 3rem;
+      margin-bottom: var(--space-md);
+      display: block;
+      filter: drop-shadow(0 4px 20px rgba(167, 139, 250, 0.3));
+      transition: transform var(--transition-bounce);
+    }
+
+    .host-card:hover .host-emoji {
+      transform: scale(1.15);
+    }
+
+    .host-name {
+      font-size: var(--fs-h3);
+      font-weight: var(--fw-bold);
+      margin-bottom: 2px;
+      letter-spacing: 0.1em;
+    }
+
+    .host-group {
+      font-size: var(--fs-micro);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-md);
+      letter-spacing: 0.15em;
+    }
+
+    .host-desc {
+      font-size: var(--fs-small);
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .host-card.nt { --host-glow: rgba(34, 211, 238, 0.25); }
+    .host-card.nt:hover { border-color: rgba(34, 211, 238, 0.4); }
+    .host-card.nt .host-name { color: var(--nt-color); }
+
+    .host-card.nf { --host-glow: rgba(244, 114, 182, 0.25); }
+    .host-card.nf:hover { border-color: rgba(244, 114, 182, 0.4); }
+    .host-card.nf .host-name { color: var(--nf-color); }
+
+    .host-card.sj { --host-glow: rgba(167, 139, 250, 0.25); }
+    .host-card.sj:hover { border-color: rgba(167, 139, 250, 0.4); }
+    .host-card.sj .host-name { color: var(--sj-color); }
+
+    .host-card.sp { --host-glow: rgba(251, 191, 36, 0.25); }
+    .host-card.sp:hover { border-color: rgba(251, 191, 36, 0.4); }
+    .host-card.sp .host-name { color: var(--sp-color); }
+
+    .quick-entry {
+      text-align: center;
+      animation: fadeInUp 0.8s ease 0.5s both;
+    }
+
+    .quick-entry-label {
+      font-size: var(--fs-micro);
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+      margin-bottom: var(--space-md);
+      text-transform: uppercase;
+    }
+
+    .quick-links {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .quick-link {
+      padding: 6px 14px;
+      font-size: var(--fs-small);
+      color: var(--text-secondary);
+      background: rgba(167, 139, 250, 0.08);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+
+    .quick-link:hover {
+      color: var(--primary-purple-light);
+      border-color: var(--primary-purple);
+      background: rgba(167, 139, 250, 0.15);
+    }
+
+    .divider-line {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--primary-purple), transparent);
+      margin: var(--space-xl) auto;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <a href="../" class="back-link">← 返回首页</a>
+
+  <div class="page">
+    <header class="intro-header">
+      <div class="intro-badge">
+        <span style="width:6px;height:6px;background:var(--neon-cyan);border-radius:50%;display:inline-block;animation:pulse-glow 2s ease-in-out infinite;"></span>
+        HOST ENTRANCE
+      </div>
+      <h1 class="intro-title">选择你的主理人</h1>
+      <p class="intro-subtitle">
+        四位主理人，四盏夜灯。<br>
+        选一位最像<em>此刻的你</em>，或你<em>想成为</em>的那个人。
+      </p>
+    </header>
+
+    <div class="hosts-grid">
+      <a href="../cocktail/" class="host-card nt">
+        <span class="host-emoji">🌙</span>
+        <div class="host-name">夜航员</div>
+        <div class="host-group">NT · 理性直觉</div>
+        <div class="host-desc">
+          在思想的深海航行<br>
+          灯塔是逻辑的光
+        </div>
+      </a>
+
+      <a href="../music/" class="host-card nf">
+        <span class="host-emoji">🌸</span>
+        <div class="host-name">策展人</div>
+        <div class="host-group">NF · 情感直觉</div>
+        <div class="host-desc">
+          把感受调成一杯酒<br>
+          让灵魂有处安放
+        </div>
+      </a>
+
+      <a href="../chess/" class="host-card sj">
+        <span class="host-emoji">🏰</span>
+        <div class="host-name">守夜人</div>
+        <div class="host-group">SJ · 实感判断</div>
+        <div class="host-desc">
+          秩序是夜的骨架<br>
+          每一步都落在实处
+        </div>
+      </a>
+
+      <a href="../poker/" class="host-card sp">
+        <span class="host-emoji">✨</span>
+        <div class="host-name">调音师</div>
+        <div class="host-group">SP · 实感感知</div>
+        <div class="host-desc">
+          用感官调试世界<br>
+          此刻即是全部
+        </div>
+      </a>
+    </div>
+
+    <div class="divider-line"></div>
+
+    <div class="quick-entry">
+      <div class="quick-entry-label">或直接进入</div>
+      <div class="quick-links">
+        <a href="../cocktail/" class="quick-link">🍸 人格调酒</a>
+        <a href="../music/" class="quick-link">🎵 人格音乐</a>
+        <a href="../chess/" class="quick-link">♟️ 棋风投资</a>
+        <a href="../poker/" class="quick-link">♠️ 扑克压力</a>
+        <a href="../balance/" class="quick-link">⚖️ 平衡分析</a>
+        <a href="../passport/" class="quick-link">🪪 人格护照</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

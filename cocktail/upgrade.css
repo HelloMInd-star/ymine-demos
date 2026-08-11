@@ -1,0 +1,261 @@
+/* ============================================================
+   人格调酒 Demo · 视觉升级补丁
+   叠加在旧样式上，仅包含该 Demo 专属的视觉增强
+   ============================================================ */
+
+/* --- 页面头部升级：金辉标题 + 装饰光晕 --- */
+.page-header {
+  position: relative;
+  padding: 50px 0 36px !important;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 200px;
+  background: radial-gradient(ellipse, rgba(167, 139, 250, 0.15), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: 36px !important;
+  letter-spacing: 0.08em !important;
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 0%,
+    var(--purple) 40%,
+    var(--gold) 60%,
+    var(--purple) 80%,
+    var(--text-primary) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleShine 4s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+.page-header p {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- 气质标签筛选栏 --- */
+.temperament-filter {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.temp-filter-btn {
+  padding: 4px 12px;
+  font-size: 11px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: rgba(167, 139, 250, 0.05);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.temp-filter-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.temp-filter-btn.active-nt {
+  background: var(--nt-color-bg);
+  border-color: rgba(34, 211, 238, 0.4);
+  color: var(--nt-color);
+}
+
+.temp-filter-btn.active-nf {
+  background: var(--nf-color-bg);
+  border-color: rgba(244, 114, 182, 0.4);
+  color: var(--nf-color);
+}
+
+.temp-filter-btn.active-sj {
+  background: var(--sj-color-bg);
+  border-color: rgba(167, 139, 250, 0.4);
+  color: var(--sj-color);
+}
+
+.temp-filter-btn.active-sp {
+  background: var(--sp-color-bg);
+  border-color: rgba(251, 191, 36, 0.4);
+  color: var(--sp-color);
+}
+
+/* --- 控制面板增强 --- */
+.control-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.control-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--purple), var(--gold), transparent);
+  opacity: 0.5;
+}
+
+.panel-title {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- 时段条增强：扫光动效 --- */
+.time-slot-bar {
+  position: relative;
+  overflow: hidden;
+  background: rgba(167, 139, 250, 0.08) !important;
+  border-color: rgba(167, 139, 250, 0.2) !important;
+}
+
+.time-slot-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(251, 191, 36, 0.08),
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.time-slot-bar .slot-label {
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+/* --- 鸡尾酒卡片增强：磨砂玻璃 + 悬浮光晕 --- */
+.cocktail-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(20, 18, 45, 0.5) !important;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border-color: rgba(167, 139, 250, 0.18) !important;
+  transition: all var(--transition) !important;
+}
+
+.cocktail-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--aura-color, var(--purple)), transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.cocktail-card:hover {
+  border-color: var(--purple) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(167, 139, 250, 0.12) !important;
+  transform: translateY(-3px);
+}
+
+.cocktail-card:hover::before {
+  opacity: 1;
+}
+
+.cocktail-card .rank {
+  font-family: var(--font-display);
+  background: linear-gradient(135deg, var(--purple), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.4 !important;
+}
+
+.cocktail-card .name {
+  background: linear-gradient(135deg, var(--text-primary), var(--primary-purple-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cocktail-card .tagline {
+  color: var(--amber-gold-light) !important;
+}
+
+.cocktail-card .story {
+  border-left-color: rgba(167, 139, 250, 0.25) !important;
+}
+
+.cocktail-card .match {
+  color: var(--amber-gold-light) !important;
+}
+
+/* --- 分子视图条增强 --- */
+.molecule-fill {
+  background: linear-gradient(90deg, var(--purple), var(--gold));
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(167, 139, 250, 0.4);
+}
+
+/* --- 按钮扫光效果 --- */
+#btn-random,
+#btn-recommend {
+  position: relative;
+  overflow: hidden;
+}
+
+#btn-random::after,
+#btn-recommend::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+#btn-random:hover::after,
+#btn-recommend:hover::after {
+  left: 150%;
+}
+
+/* --- 空状态增强 --- */
+.empty-state {
+  position: relative;
+}
+
+.empty-state .big-emoji {
+  animation: float 4s ease-in-out infinite;
+}
