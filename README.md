@@ -2,7 +2,7 @@
 
 > 多场景人格校准 Demo · 从偏好到压力
 
-**部署**: [https://hellomind-star.github.io/ymine-demos/](https://hellomind-star.github.io/ymine-demos/)
+**部署**:  https://hellomind-star.github.io/ymine-demos/
 
 ## Demo 清单
 
