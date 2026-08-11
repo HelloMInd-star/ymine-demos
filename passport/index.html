@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人格护照 Demo · Y.MINE 人格实验室</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    .page-header { text-align: center; padding: 40px 0 30px; }
+    .page-header h1 { font-family: var(--font-display); font-size: 32px; letter-spacing: 0.06em; }
+    .page-header p { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
+
+    .layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; padding-bottom: 60px; }
+    @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+
+    .control-panel { padding: 20px; }
+    .panel-title { font-size: 13px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .panel-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--purple), transparent); }
+
+    .slider-group { margin-bottom: 14px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .slider-label { font-size: 12px; font-weight: 600; }
+    .slider-label small { font-size: 10px; opacity: 0.5; font-weight: 400; }
+    .slider-value { font-size: 12px; font-family: var(--font-mono); }
+    .slider-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+
+    .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 12px; }
+    .preset-btn {
+      padding: 4px 2px; font-size: 10px; border-radius: 4px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary);
+      transition: all var(--transition); text-align: center;
+    }
+    .preset-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+    /* 护照卡片 */
+    .passport-card {
+      max-width: 520px; margin: 0 auto; padding: 40px 36px;
+      border-radius: var(--radius-xl); background: var(--bg-card);
+      border: 2px solid var(--border-gold); position: relative;
+      overflow: hidden; box-shadow: 0 0 40px rgba(167, 139, 250, 0.1);
+    }
+    .passport-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: linear-gradient(90deg, var(--purple), var(--cyan), var(--gold));
+    }
+    .passport-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .passport-header {
+      text-align: center; margin-bottom: 24px; padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .passport-header .pp-emoji { font-size: 48px; margin-bottom: 8px; }
+    .passport-header .pp-title { font-family: var(--font-display); font-size: 18px; color: var(--purple); letter-spacing: 0.08em; }
+    .passport-header .pp-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    .vector-bar { margin-bottom: 10px; }
+    .vector-bar .v-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .vector-bar .v-label { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .vector-bar .v-label .v-icon { font-size: 14px; }
+    .vector-bar .v-value { font-size: 11px; font-family: var(--font-mono); }
+    .vector-bar .v-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+    .vector-bar .v-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+    .passport-footer {
+      margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+      text-align: center; font-size: 10px; color: var(--text-muted);
+    }
+    .passport-footer .pp-id { font-family: var(--font-mono); color: var(--cyan); margin-top: 4px; font-size: 13px; letter-spacing: 0.05em; }
+
+    .archetype-badge {
+      display: inline-block; padding: 6px 16px; border-radius: 999px;
+      font-size: 12px; font-weight: 600; border: 1px solid; margin: 8px 0;
+    }
+
+    .archetype-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
+    @media (max-width: 768px) { .archetype-grid { grid-template-columns: repeat(3, 1fr); } }
+    .archetype-chip {
+      padding: 10px 8px; border-radius: var(--radius-md); background: var(--bg-card);
+      border: 1px solid var(--border); text-align: center; cursor: pointer;
+      transition: all var(--transition); font-size: 11px;
+    }
+    .archetype-chip:hover { border-color: var(--purple); transform: translateY(-1px); }
+    .archetype-chip .ac-emoji { font-size: 20px; margin-bottom: 4px; display: block; }
+    .archetype-chip .ac-name { font-weight: 600; margin-bottom: 2px; }
+    .archetype-chip .ac-desc { font-size: 9px; color: var(--text-muted); line-height: 1.3; }
+
+    .passport-details { margin-top: 16px; }
+    .pd-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 11px; border-bottom: 1px solid var(--border); }
+    .pd-row:last-child { border-bottom: none; }
+    .pd-label { color: var(--text-muted); }
+    .pd-value { color: var(--text-secondary); font-family: var(--font-mono); font-size: 10px; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 13px; }
+    .empty-state .big-emoji { font-size: 48px; margin-bottom: 12px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <a href="../" class="nav-brand">Y.MINE 人格实验室</a>
+      <a href="../" class="nav-back">← 返回入口</a>
+    </div>
+    <div class="page-header">
+      <h1 class="text-purple">🪪 人格护照</h1>
+      <p>六维向量可视化护照 · 10 种人格原型 · 可分享的人格名片</p>
+    </div>
+
+    <div class="layout">
+      <div class="control-panel glass">
+        <div class="panel-title">人格向量</div>
+        <div id="sliders"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-random">🎲 随机生成</button>
+          <button class="btn btn-gold" id="btn-generate">🪪 生成护照</button>
+        </div>
+        <div style="margin-top: 12px; font-size: 10px; color: var(--text-muted);">MBTI 预设</div>
+        <div class="preset-grid" id="presets"></div>
+      </div>
+      <div id="results">
+        <div class="empty-state">
+          <span class="big-emoji">🪪</span>
+          调整向量后点击「生成护照」
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/theme.js"></script>
+  <script src="../shared/vector-mock.js"></script>
+  <script>
+    // ═════════════════════════════════════════════════════════
+    // 数据：来自主项目 personalityArchetypes.ts + mbtiChessData.ts
+    // ═════════════════════════════════════════════════════════
+    const ARCHETYPES = [
+      { id: 'dreamweaver', name: '织梦者', emoji: '🌙', color: '#9d6bbf', desc: '以直觉为线，编织夜的经纬。', tagline: '把未饮过的味道，织进今夜的星图。', vector: { TOL: 0.55, SPD: 0.45, INF: 0.70, ENT: 0.65, LEAD: 0.40, VIS: 0.85 }, bigFive: { openness: 0.85, conscientiousness: 0.45, extraversion: 0.65, agreeableness: 0.70, neuroticism: 0.55 } },
+      { id: 'clockmaker', name: '守序者', emoji: '⚙️', color: '#f0c674', desc: '每一滴都落在它该落的分毫里。', tagline: '每一滴都落在它该落的分毫里。', vector: { TOL: 0.35, SPD: 0.30, INF: 0.80, ENT: 0.20, LEAD: 0.75, VIS: 0.30 }, bigFive: { openness: 0.30, conscientiousness: 0.85, extraversion: 0.20, agreeableness: 0.80, neuroticism: 0.30 } },
+      { id: 'ember', name: '焰心者', emoji: '🔥', color: '#F87171', desc: '把热度分给世界的每一寸。', tagline: '你举杯，整张吧台都跟着亮起来。', vector: { TOL: 0.40, SPD: 0.75, INF: 0.35, ENT: 0.90, LEAD: 0.55, VIS: 0.60 }, bigFive: { openness: 0.55, conscientiousness: 0.55, extraversion: 0.90, agreeableness: 0.35, neuroticism: 0.40 } },
+      { id: 'velvet', name: '月潮者', emoji: '🌊', color: '#22D3EE', desc: '随月盈缺，温柔却不可挡。', tagline: '把锋芒藏进丝绒，让夜柔软下来。', vector: { TOL: 0.70, SPD: 0.50, INF: 0.55, ENT: 0.60, LEAD: 0.35, VIS: 0.70 }, bigFive: { openness: 0.70, conscientiousness: 0.35, extraversion: 0.60, agreeableness: 0.80, neuroticism: 0.50 } },
+      { id: 'mistwalker', name: '雾行者', emoji: '🌫️', color: '#8B8FB8', desc: '在朦胧中辨认方向的人。', tagline: '心事被风一吹，便起了涟漪。', vector: { TOL: 0.60, SPD: 0.40, INF: 0.50, ENT: 0.35, LEAD: 0.45, VIS: 0.55 }, bigFive: { openness: 0.60, conscientiousness: 0.45, extraversion: 0.35, agreeableness: 0.50, neuroticism: 0.85 } },
+      { id: 'alchemist', name: '炼金者', emoji: '⚗️', color: '#A78BFA', desc: '把纷繁炼至两样材料。', tagline: '以耐心炼新奇，把灵感炼成经典。', vector: { TOL: 0.80, SPD: 0.55, INF: 0.85, ENT: 0.30, LEAD: 0.60, VIS: 0.45 }, bigFive: { openness: 0.80, conscientiousness: 0.75, extraversion: 0.30, agreeableness: 0.85, neuroticism: 0.35 } },
+      { id: 'solitude', name: '独酌者', emoji: '🌑', color: '#4A4A6A', desc: '夜将尽，留一句给你独听。', tagline: '角落那杯，是只有自己懂的语言。', vector: { TOL: 0.50, SPD: 0.35, INF: 0.60, ENT: 0.25, LEAD: 0.30, VIS: 0.40 }, bigFive: { openness: 0.45, conscientiousness: 0.30, extraversion: 0.15, agreeableness: 0.30, neuroticism: 0.60 } },
+      { id: 'navigator', name: '引航者', emoji: '🧭', color: '#c8a040', desc: '风浪里端得住一杯不洒，便是你的航向。', tagline: '风浪里端得住一杯不洒，便是你的航向。', vector: { TOL: 0.50, SPD: 0.70, INF: 0.55, ENT: 0.40, LEAD: 0.80, VIS: 0.45 }, bigFive: { openness: 0.50, conscientiousness: 0.85, extraversion: 0.40, agreeableness: 0.55, neuroticism: 0.20 } },
+      { id: 'revel', name: '夜宴者', emoji: '🥂', color: '#b06fc8', desc: '热烈是底色，锋芒是装饰。', tagline: '热烈是底色，锋芒是装饰。', vector: { TOL: 0.40, SPD: 0.65, INF: 0.25, ENT: 0.85, LEAD: 0.55, VIS: 0.70 }, bigFive: { openness: 0.60, conscientiousness: 0.55, extraversion: 0.85, agreeableness: 0.25, neuroticism: 0.45 } },
+      { id: 'twilight', name: '暮色者', emoji: '🌅', color: '#FBBF24', desc: '天光与夜色交接处的人。', tagline: '不偏不倚，恰是夜与昼交界的颜色。', vector: { TOL: 0.45, SPD: 0.60, INF: 0.45, ENT: 0.55, LEAD: 0.50, VIS: 0.65 }, bigFive: { openness: 0.50, conscientiousness: 0.50, extraversion: 0.55, agreeableness: 0.50, neuroticism: 0.50 } },
+      { id: 'nightcaller', name: '夜唤者', emoji: '🦉', color: '#7C5FBF', desc: '在子夜唤醒沉睡的思想。', tagline: '在子夜，把沉睡的思想一一唤醒。', vector: { TOL: 0.65, SPD: 0.70, INF: 0.65, ENT: 0.75, LEAD: 0.70, VIS: 0.75 }, bigFive: { openness: 0.75, conscientiousness: 0.70, extraversion: 0.75, agreeableness: 0.65, neuroticism: 0.35 } },
+    ];
+
+    // MBTI → 原型映射
+    const MBTI_ARCHETYPE_MAP = {
+      INTJ: 'alchemist', INTP: 'alchemist', ENTJ: 'nightcaller', ENTP: 'nightcaller',
+      INFJ: 'dreamweaver', INFP: 'dreamweaver', ENFJ: 'ember', ENFP: 'ember',
+      ISTJ: 'clockmaker', ISFJ: 'clockmaker', ESTJ: 'navigator', ESFJ: 'navigator',
+      ISTP: 'velvet', ISFP: 'mistwalker', ESTP: 'revel', ESFP: 'revel',
+    };
+
+    // MBTI 棋子映射
+    const MBTI_PIECE = {
+      INTJ: 'Rook', INTP: 'Bishop', ENTJ: 'Queen', ENTP: 'Knight',
+      INFJ: 'King', INFP: 'Bishop', ENFJ: 'King', ENFP: 'Knight',
+      ISTJ: 'Rook', ISFJ: 'Rook', ESTJ: 'Bishop', ESFJ: 'Rook',
+      ISTP: 'Knight', ISFP: 'Knight', ESTP: 'Knight', ESFP: 'Queen',
+    };
+
+    const PIECE_NAMES = { Rook: '车', Bishop: '象', Knight: '马', Queen: '后', King: '王' };
+    const PIECE_COLORS = { Rook: '#22c55e', Bishop: '#f0c674', Knight: '#f472b6', Queen: '#a78bfa', King: '#fbbf24' };
+
+    const DIM_COLORS = { TOL: '#A78BFA', SPD: '#22D3EE', INF: '#FBBF24', ENT: '#F87171', LEAD: '#34D399', VIS: '#F472B6' };
+    const DIM_ICONS = { TOL: '🧘', SPD: '⚡', INF: '🧠', ENT: '🔥', LEAD: '👑', VIS: '👁️' };
+
+    function findClosestArchetype(vec) {
+      let best = null, bestDist = Infinity;
+      ARCHETYPES.forEach(a => {
+        const dist = Object.keys(vec).reduce((s, k) => s + (vec[k] - a.vector[k]) ** 2, 0);
+        if (dist < bestDist) { bestDist = dist; best = a; }
+      });
+      return best;
+    }
+
+    function generatePassportId(vec) {
+      const parts = Object.values(vec).map(v => Math.round(v * 9).toString(36));
+      return 'YM-' + parts.join('').toUpperCase();
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 初始化
+    // ═════════════════════════════════════════════════════════
+    const DEFAULT_VEC = { TOL: 0.55, SPD: 0.62, INF: 0.45, ENT: 0.72, LEAD: 0.5, VIS: 0.78 };
+    let currentVector = { ...DEFAULT_VEC };
+
+    const sliderValues = createVectorSliders($('#sliders'), (vals) => {
+      currentVector = { ...vals };
+    }, DEFAULT_VEC);
+
+    // MBTI 预设按钮
+    const ALL_MBTI = ['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
+    const presetsEl = $('#presets');
+    ALL_MBTI.forEach(mbti => {
+      const btn = document.createElement('button');
+      btn.className = 'preset-btn';
+      btn.textContent = mbti;
+      btn.title = MBTI_ARCHETYPE_MAP[mbti] ? '→ ' + ARCHETYPES.find(a => a.id === MBTI_ARCHETYPE_MAP[mbti]).name : '';
+      btn.addEventListener('click', () => {
+        const archId = MBTI_ARCHETYPE_MAP[mbti];
+        const archetype = ARCHETYPES.find(a => a.id === archId);
+        if (archetype) {
+          currentVector = { ...archetype.vector };
+          DIMENSIONS.forEach(d => {
+            const input = document.querySelector(`input[data-dim="${d.key}"]`);
+            if (input) {
+              input.value = archetype.vector[d.key];
+              const valEl = input.parentElement.querySelector('.slider-value');
+              if (valEl) valEl.textContent = fmt(archetype.vector[d.key]);
+            }
+          });
+        }
+      });
+      presetsEl.appendChild(btn);
+    });
+
+    $('#btn-random').addEventListener('click', () => {
+      const vec = randomVector();
+      currentVector = { ...vec };
+      DIMENSIONS.forEach(d => {
+        const input = document.querySelector(`input[data-dim="${d.key}"]`);
+        if (input) {
+          input.value = vec[d.key];
+          const valEl = input.parentElement.querySelector('.slider-value');
+          if (valEl) valEl.textContent = fmt(vec[d.key]);
+        }
+      });
+    });
+
+    $('#btn-generate').addEventListener('click', () => renderPassport());
+
+    function renderPassport() {
+      const vec = currentVector;
+      const archetype = findClosestArchetype(vec);
+      const passportId = generatePassportId(vec);
+      const now = new Date().toISOString().split('T')[0];
+      const timeSlot = getCurrentTimeSlot();
+
+      $('#results').innerHTML = `
+        <div class="passport-card animate-in">
+          <div class="passport-header">
+            <div class="pp-emoji">${archetype.emoji}</div>
+            <div class="pp-title">${archetype.name}</div>
+            <div class="archetype-badge" style="border-color:${archetype.color};color:${archetype.color};background:${archetype.color}11;">
+              ${archetype.desc}
+            </div>
+            <div class="pp-subtitle">Y.MINE 人格护照 · 基于六维向量</div>
+          </div>
+
+          ${DIMENSIONS.map(d => `
+            <div class="vector-bar">
+              <div class="v-header">
+                <span class="v-label" style="color:${DIM_COLORS[d.key]}">
+                  <span class="v-icon">${DIM_ICONS[d.key]}</span>${d.label} <small>${d.en}</small>
+                </span>
+                <span class="v-value" style="color:${DIM_COLORS[d.key]}">${(vec[d.key] * 100).toFixed(0)}%</span>
+              </div>
+              <div class="v-bar"><div class="v-fill" style="width:${vec[d.key] * 100}%;background:${DIM_COLORS[d.key]};"></div></div>
+            </div>
+          `).join('')}
+
+          <div class="passport-details">
+            <div class="pd-row">
+              <span class="pd-label">🕐 签发时段</span>
+              <span class="pd-value">${timeSlot.label} · ${timeSlot.mood}</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-label">📜 原型标签</span>
+              <span class="pd-value" style="color:${archetype.color};">${archetype.tagline}</span>
+            </div>
+            <div class="pd-row">
+              <span class="pd-label">🎯 大五特质</span>
+              <span class="pd-value">
+                O:${(archetype.bigFive.openness * 100).toFixed(0)}%
+                C:${(archetype.bigFive.conscientiousness * 100).toFixed(0)}%
+                E:${(archetype.bigFive.extraversion * 100).toFixed(0)}%
+                A:${(archetype.bigFive.agreeableness * 100).toFixed(0)}%
+                N:${(archetype.bigFive.neuroticism * 100).toFixed(0)}%
+              </span>
+            </div>
+          </div>
+
+          <div class="passport-footer">
+            <div>Y.MINE 人格实验室 · 人格护照</div>
+            <div class="pp-id">${passportId}</div>
+            <div style="color:var(--text-muted);margin-top:4px;">签发日期 ${now} · ${timeSlot.poem}</div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top: 24px;">🧬 人格原型图谱</div>
+        <div class="archetype-grid">
+          ${ARCHETYPES.map(a => `
+            <div class="archetype-chip" style="border-color:${a.id === archetype.id ? a.color : 'var(--border)'};box-shadow:${a.id === archetype.id ? '0 0 12px ' + a.color + '22' : 'none'};">
+              <span class="ac-emoji">${a.emoji}</span>
+              <div class="ac-name" style="color:${a.color}">${a.name}</div>
+              <div class="ac-desc">${a.desc}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    renderPassport();
+  </script>
+</body>
+</html>

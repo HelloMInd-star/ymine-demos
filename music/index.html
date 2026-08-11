@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人格音乐 Demo · Y.MINE 人格实验室</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    .page-header {
+      text-align: center;
+      padding: 40px 0 30px;
+    }
+    .page-header h1 { font-family: var(--font-display); font-size: 32px; letter-spacing: 0.06em; }
+    .page-header p { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
+
+    .layout { display: grid; grid-template-columns: 360px 1fr; gap: 24px; padding-bottom: 60px; }
+    @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+
+    .control-panel { padding: 20px; }
+    .panel-title {
+      font-size: 13px; color: var(--purple); text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .panel-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, var(--purple), transparent);
+    }
+    .slider-group { margin-bottom: 14px; }
+    .slider-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 4px;
+    }
+    .slider-label { font-size: 12px; font-weight: 600; }
+    .slider-label small { font-size: 10px; opacity: 0.5; font-weight: 400; }
+    .slider-value { font-size: 12px; font-family: var(--font-mono); }
+    .slider-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .btn-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+    /* 结果区 */
+    .result-section { margin-bottom: 20px; }
+    .section-title {
+      font-size: 12px; color: var(--cyan); text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 12px;
+    }
+    .style-tag {
+      display: inline-block; padding: 6px 14px; border-radius: 999px;
+      margin: 4px; font-size: 13px; border: 1px solid var(--border);
+      background: rgba(167, 139, 250, 0.08); color: var(--text-primary);
+      transition: all var(--transition);
+    }
+    .style-tag:hover {
+      border-color: var(--purple);
+      background: rgba(167, 139, 250, 0.15);
+    }
+
+    /* 歌单推荐 */
+    .playlist-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 1024px) { .playlist-cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .playlist-cards { grid-template-columns: 1fr; } }
+    .playlist-card {
+      padding: 16px; border-radius: var(--radius-md);
+      background: var(--bg-card); border: 1px solid var(--border);
+      transition: all var(--transition);
+    }
+    .playlist-card:hover { border-color: var(--purple); }
+    .playlist-card .pl-title {
+      font-size: 14px; font-weight: 600; margin-bottom: 4px;
+    }
+    .playlist-card .pl-mood {
+      font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;
+    }
+    .playlist-card .pl-songs {
+      font-size: 10px; color: var(--text-muted); line-height: 1.8;
+    }
+    .playlist-card .pl-songs span { color: var(--cyan); }
+
+    /* 音频播放区 */
+    .audio-player {
+      padding: 20px; margin-top: 16px;
+      text-align: center;
+    }
+    .audio-player .btn {
+      font-size: 14px; padding: 12px 28px;
+    }
+    .audio-player .btn.playing {
+      background: rgba(34, 211, 238, 0.15);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      animation: glowPulse 2s infinite;
+    }
+    .audio-status {
+      font-size: 11px; color: var(--text-secondary);
+      margin-top: 8px;
+    }
+    .param-bars {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-top: 16px;
+    }
+    .param-bar-item {
+      text-align: center;
+    }
+    .param-bar-item .label {
+      font-size: 10px; color: var(--text-muted); margin-bottom: 4px;
+    }
+    .param-bar-item .bar {
+      height: 4px; border-radius: 2px;
+      background: rgba(255,255,255,0.06); overflow: hidden;
+    }
+    .param-bar-item .fill {
+      height: 100%; border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+    .param-bar-item .value {
+      font-size: 10px; font-family: var(--font-mono);
+      color: var(--cyan); margin-top: 2px;
+    }
+
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: var(--text-muted);
+      font-size: 13px;
+    }
+    .empty-state .big-emoji { font-size: 48px; margin-bottom: 12px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <a href="../" class="nav-brand">Y.MINE 人格实验室</a>
+      <a href="../" class="nav-back">← 返回入口</a>
+    </div>
+
+    <div class="page-header">
+      <h1 class="text-purple">🎵 人格音乐</h1>
+      <p>六维向量 → 音乐风格推荐 + Web Audio 氛围合成</p>
+    </div>
+
+    <div class="layout">
+      <!-- 左侧：控制面板 -->
+      <div class="control-panel glass">
+        <div class="panel-title">人格向量</div>
+        <div id="sliders"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-random">🎲 随机生成</button>
+          <button class="btn btn-gold" id="btn-analyze">🎵 分析风格</button>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;" id="presets">
+          <span style="font-size:10px;color:var(--text-muted);">预设：</span>
+        </div>
+      </div>
+
+      <!-- 右侧：结果区 -->
+      <div id="results">
+        <div class="empty-state">
+          <span class="big-emoji">🎵</span>
+          调整向量后点击「分析风格」
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared/theme.js"></script>
+  <script src="../shared/vector-mock.js"></script>
+  <script>
+    // ═════════════════════════════════════════════════════════
+    // 风格推荐库 · 来自主项目人格-音乐映射
+    // ═════════════════════════════════════════════════════════
+    const STYLE_MAP = {
+      darkTrap: { name: '深夜 Trap Soul', tags: ['Trap', 'R&B', '暗潮'], mood: '深沉 · 迷幻', bpm: '65-85', desc: '808 低频 + 氛围合成器 + 慵懒人声', archetype: '夜唤者' },
+      melodicRap: { name: '冷峻 Melodic Rap', tags: ['Hip-Hop', '旋律', '冷感'], mood: '克制 · 锐利', bpm: '75-95', desc: '精准鼓点 + 旋律说唱 + 极简制作', archetype: '炼金者' },
+      ambientRnb: { name: '氛围 R&B', tags: ['R&B', '氛围', '柔和'], mood: '温暖 · 流动', bpm: '60-80', desc: '柔和合成器 + 切分节奏 + 情感人声', archetype: '月潮者' },
+      jazzHop: { name: '爵士嘻哈', tags: ['Jazz', 'Hip-Hop', '慵懒'], mood: '松弛 · 优雅', bpm: '70-90', desc: '爵士采样 + 舒缓鼓点 + 钢琴旋律', archetype: '暮色者' },
+      electronicDream: { name: '电子梦境', tags: ['Electronic', 'Dream Pop', '迷幻'], mood: '漂浮 · 梦幻', bpm: '50-70', desc: '合成器音墙 + 空灵人声 + 慢节奏', archetype: '织梦者' },
+      minimalClassical: { name: '极简古典', tags: ['Classical', 'Minimal', '钢琴'], mood: '专注 · 沉思', bpm: '40-60', desc: '钢琴独奏 + 弦乐铺垫 + 留白', archetype: '守序者' },
+      rockBallad: { name: '摇滚叙事', tags: ['Rock', 'Ballad', '吉他'], mood: '力量 · 感性', bpm: '80-100', desc: '电吉他 + 叙事性歌词 + 渐进鼓点', archetype: '焰心者' },
+      upbeatPop: { name: '活力流行', tags: ['Pop', 'Dance', '电子'], mood: '明亮 · 跃动', bpm: '110-130', desc: '流行结构 + 电子元素 + 明快节奏', archetype: '焰心者' },
+      loFiChill: { name: 'Lo-Fi 放松', tags: ['Lo-Fi', 'Chill', '低保真'], mood: '温暖 · 怀旧', bpm: '60-80', desc: '低保真质感 + 简单节奏 + 环境音采样', archetype: '雾行者' },
+      latinFusion: { name: '拉丁融合', tags: ['Latin', 'Fusion', '打击乐'], mood: '热情 · 律动', bpm: '100-120', desc: '拉丁节奏 + 爵士和声 + 即兴', archetype: '暮色者' },
+      darkSynth: { name: '暗波合成', tags: ['Synthwave', 'Dark', '工业'], mood: '冷峻 · 压迫', bpm: '90-110', desc: '模拟合成器 + 工业鼓机 + 暗黑气质', archetype: '独酌者' },
+      orchestralEpic: { name: '史诗管弦', tags: ['Orchestral', 'Epic', '电影'], mood: '宏大 · 庄严', bpm: '60-90', desc: '管弦乐团 + 合唱 + 渐进高潮', archetype: '领航者' },
+    };
+
+    // 网易云风格歌单 · 占位（后续接真实 API）
+    const PLAYLIST_PLACEHOLDERS = [
+      { title: '深夜实验室', mood: '专注 · 深度工作', archetype: '炼金者', songs: ['<span>Blue in Green</span> — Miles Davis', '<span>Weightless</span> — Marconi Union', '<span>Avril 14th</span> — Aphex Twin'] },
+      { title: '霓虹漫游', mood: '都市 · 夜行', archetype: '夜唤者', songs: ['<span>Blinding Lights</span> — The Weeknd', '<span>Nights</span> — Frank Ocean', '<span>After Hours</span> — The Weeknd'] },
+      { title: '静谧回响', mood: '冥想 · 内省', archetype: '独酌者', songs: ['<span>Gymnopédie No.1</span> — Satie', '<span>Spiegel im Spiegel</span> — Arvo Pärt', '<span>Clair de Lune</span> — Debussy'] },
+      { title: '节奏实验室', mood: '律动 · 实验', archetype: '焰心者', songs: ['<span>Lose Yourself to Dance</span> — Daft Punk', '<span>Electric Feel</span> — MGMT', '<span>Midnight City</span> — M83'] },
+      { title: '氛围叙事', mood: '电影感 · 沉浸', archetype: '织梦者', songs: ['<span>Time</span> — Hans Zimmer', '<span>On the Nature of Daylight</span> — Max Richter', '<span>Experience</span> — Ludovico Einaudi'] },
+      { title: '低音引力', mood: '深沉 · 力量', archetype: '守序者', songs: ['<span>Limit to Your Love</span> — James Blake', '<span>Teardrop</span> — Massive Attack', '<span>Angel</span> — Massive Attack'] },
+      { title: '晨雾漫步', mood: '清新 · 朦胧', archetype: '雾行者', songs: ['<span>Holocene</span> — Bon Iver', '<span>To Build a Home</span> — Cinematic Orchestra', '<span>Bloom</span> — The Paper Kites'] },
+      { title: '日落大道', mood: '温暖 · 怀旧', archetype: '暮色者', songs: ['<span>Sunset Lover</span> — Petit Biscuit', '<span>Redbone</span> — Childish Gambino', '<span>Electric</span> — Alina Baraz'] },
+      { title: '潮汐之力', mood: '流动 · 力量', archetype: '月潮者', songs: ['<span>Tides</span> — Bonobo', '<span>Breathe</span> — Télépopmusik', '<span>Porcelain</span> — Moby'] },
+      { title: '军令如山', mood: '史诗 · 庄严', archetype: '领航者', songs: ['<span>Heart of Courage</span> — Two Steps From Hell', '<span>Lux Aeterna</span> — Clint Mansell', '<span>O Fortuna</span> — Carl Orff'] },
+    ];
+
+    // ═════════════════════════════════════════════════════════
+    // 向量 → 风格推荐 · 多维度人格驱动
+    // ═════════════════════════════════════════════════════════
+    function getStyleRecommendations(vec) {
+      const recs = [];
+
+      // ENT + SPD → 能量-节奏象限
+      const energy = vec.ENT * 0.6 + vec.SPD * 0.4;
+      if (energy > 0.7) {
+        recs.push('upbeatPop', 'rockBallad', 'darkTrap');
+      } else if (energy > 0.45) {
+        recs.push('melodicRap', 'latinFusion', 'darkSynth');
+      } else if (energy > 0.25) {
+        recs.push('ambientRnb', 'jazzHop', 'electronicDream');
+      } else {
+        recs.push('loFiChill', 'minimalClassical', 'ambientRnb');
+      }
+
+      // TOL + LEAD → 复杂度-结构象限
+      const complexity = vec.TOL * 0.5 + vec.LEAD * 0.5;
+      if (complexity > 0.6) {
+        recs.push('jazzHop', 'orchestralEpic', 'darkSynth');
+      } else if (complexity < 0.3) {
+        recs.push('upbeatPop', 'loFiChill');
+      }
+
+      // VIS + INF → 视觉-表现象限
+      const expressiveness = vec.VIS * 0.5 + vec.INF * 0.5;
+      if (expressiveness > 0.7) {
+        recs.push('electronicDream', 'latinFusion', 'orchestralEpic');
+      }
+      if (expressiveness < 0.3) {
+        recs.push('minimalClassical', 'loFiChill');
+      }
+
+      // INF 高 → 甜美/果香对应甜美流行/电子
+      if (vec.INF > 0.7) {
+        recs.push('upbeatPop', 'ambientRnb');
+      }
+
+      // 去重 + 取前 6
+      const unique = [...new Set(recs)];
+      return unique.slice(0, 6).map(k => STYLE_MAP[k]).filter(Boolean);
+    }
+
+    function getPlaylistRecommendations(vec) {
+      // 从10个歌单中按能量匹配选3个
+      const energy = vec.ENT * 0.6 + vec.SPD * 0.4;
+      const sorted = [...PLAYLIST_PLACEHOLDERS].sort((a, b) => {
+        const aEnergy = ['焰心者','夜唤者'].includes(a.archetype) ? 1 : ['织梦者','月潮者'].includes(a.archetype) ? 0.5 : 0;
+        const bEnergy = ['焰心者','夜唤者'].includes(b.archetype) ? 1 : ['织梦者','月潮者'].includes(b.archetype) ? 0.5 : 0;
+        return Math.abs(energy - aEnergy) - Math.abs(energy - bEnergy);
+      });
+      return sorted.slice(0, 3);
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // Web Audio API 氛围合成
+    // ═════════════════════════════════════════════════════════
+    let audioCtx = null;
+    let activeNodes = [];
+    let isPlaying = false;
+
+    function getAudioParams(vec) {
+      return {
+        bassFreq: 60 + vec.TOL * 40,           // 低频 60-100Hz (TOL高→更深)
+        highFreq: 800 + vec.ENT * 1200,        // 高频 800-2000Hz (ENT高→更亮)
+        lowVolume: 0.15 + (1 - vec.ENT) * 0.15, // 低音量 (ENT低→更柔和)
+        highVolume: 0.05 + vec.ENT * 0.15,      // 高音量 (ENT高→更刺激)
+        layers: 2 + Math.floor(vec.TOL * 3),    // 层数 2-5 (TOL高→更复杂)
+        tempo: 40 + vec.SPD * 80,               // BPM 40-120 (SPD高→更快)
+        reverb: 0.3 + vec.VIS * 0.5,            // 混响 (VIS高→更空灵)
+        filterFreq: 400 + vec.INF * 1600,       // 滤波器 (INF高→更明亮)
+      };
+    }
+
+    function startAmbient(vec) {
+      if (isPlaying) return;
+
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      const params = getAudioParams(vec);
+      const now = audioCtx.currentTime;
+      const duration = 20; // 20 秒循环
+
+      // 主增益
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0, now);
+      masterGain.gain.linearRampToValueAtTime(0.5, now + 0.5);
+      masterGain.connect(audioCtx.destination);
+      activeNodes.push(masterGain);
+
+      // 混响卷积
+      const convolver = audioCtx.createConvolver();
+      const reverbBuffer = createReverbBuffer(audioCtx, params.reverb, 2);
+      convolver.buffer = reverbBuffer;
+      const reverbGain = audioCtx.createGain();
+      reverbGain.gain.setValueAtTime(params.reverb * 0.5, now);
+      convolver.connect(reverbGain);
+      reverbGain.connect(masterGain);
+      activeNodes.push(convolver, reverbGain);
+
+      // 每一层：低频基底 + 中高频纹理
+      for (let i = 0; i < params.layers; i++) {
+        const layerDelay = i * 0.5;
+
+        // 低频振荡器（基底）
+        const oscLow = audioCtx.createOscillator();
+        const gainLow = audioCtx.createGain();
+        oscLow.type = i === 0 ? 'sine' : 'triangle';
+        oscLow.frequency.setValueAtTime(params.bassFreq + i * 8, now + layerDelay);
+
+        // LFO 调制低频
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+        lfo.frequency.setValueAtTime(0.1 + i * 0.05, now);
+        lfoGain.gain.setValueAtTime(3 + i, now);
+        lfo.connect(lfoGain);
+        lfoGain.connect(oscLow.frequency);
+        lfo.start(now);
+        oscLow.start(now + layerDelay);
+        activeNodes.push(lfo, lfoGain, oscLow);
+
+        gainLow.gain.setValueAtTime(0, now + layerDelay);
+        gainLow.gain.linearRampToValueAtTime(params.lowVolume / params.layers, now + layerDelay + 0.3);
+        oscLow.connect(gainLow);
+        gainLow.connect(masterGain);
+        gainLow.connect(convolver);
+        activeNodes.push(gainLow);
+
+        // 中高频纹理（白噪声过滤）
+        const bufferSize = audioCtx.sampleRate * 2;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let j = 0; j < bufferSize; j++) {
+          data[j] = Math.random() * 2 - 1;
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        noise.loop = true;
+
+        const bandpass = audioCtx.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.setValueAtTime(params.filterFreq + i * 400, now);
+        bandpass.Q.setValueAtTime(0.7, now);
+
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0, now + layerDelay);
+        noiseGain.gain.linearRampToValueAtTime(params.highVolume / params.layers, now + layerDelay + 0.3);
+
+        noise.connect(bandpass);
+        bandpass.connect(noiseGain);
+        noiseGain.connect(masterGain);
+        noiseGain.connect(convolver);
+        noise.start(now + layerDelay);
+        activeNodes.push(noise, bandpass, noiseGain);
+      }
+
+      // 节奏脉冲（SPD 相关）
+      const pulseInterval = 60 / params.tempo;
+      const pulseOsc = audioCtx.createOscillator();
+      const pulseGain = audioCtx.createGain();
+      pulseOsc.type = 'sine';
+      pulseOsc.frequency.setValueAtTime(90, now);
+      pulseGain.gain.setValueAtTime(0, now);
+
+      pulseOsc.connect(pulseGain);
+      pulseGain.connect(masterGain);
+      pulseOsc.start(now);
+      activeNodes.push(pulseOsc, pulseGain);
+
+      // 脉冲调度
+      let pulseCount = 0;
+      const maxPulses = Math.floor(duration / pulseInterval);
+      const pulseIntervalId = setInterval(() => {
+        if (pulseCount >= maxPulses || !isPlaying) {
+          clearInterval(pulseIntervalId);
+          return;
+        }
+        const t = audioCtx.currentTime;
+        pulseGain.gain.setValueAtTime(0.08, t);
+        pulseGain.gain.exponentialRampToValueAtTime(0.001, t + pulseInterval * 0.5);
+        pulseCount++;
+      }, pulseInterval * 1000);
+
+      // 定时停止
+      const stopTimer = setTimeout(() => {
+        stopAmbient();
+      }, duration * 1000);
+
+      // 存储清理引用
+      activeNodes.push({ stopTimer, pulseIntervalId });
+      isPlaying = true;
+    }
+
+    function stopAmbient() {
+      if (!isPlaying) return;
+
+      if (audioCtx) {
+        const now = audioCtx.currentTime;
+        const masterGain = activeNodes.find(n => n instanceof Gain);
+        // 淡出
+        try {
+          const gains = activeNodes.filter(n => n instanceof Gain && n.gain);
+          gains.forEach(g => {
+            g.gain.linearRampToValueAtTime(0, now + 0.3);
+          });
+        } catch (e) {}
+
+        // 延迟停止
+        setTimeout(() => {
+          activeNodes.forEach(node => {
+            try {
+              if (node.stopTimer) clearTimeout(node.stopTimer);
+              if (node.pulseIntervalId) clearInterval(node.pulseIntervalId);
+              if (node.stop && typeof node.stop === 'function') node.stop();
+              if (node.disconnect && typeof node.disconnect === 'function') node.disconnect();
+            } catch (e) {}
+          });
+          activeNodes = [];
+        }, 400);
+      }
+
+      isPlaying = false;
+      updatePlayButton();
+    }
+
+    function createReverbBuffer(ctx, duration, decay) {
+      const sampleRate = ctx.sampleRate;
+      const length = sampleRate * duration;
+      const buffer = ctx.createBuffer(2, length, sampleRate);
+
+      for (let ch = 0; ch < 2; ch++) {
+        const data = buffer.getChannelData(ch);
+        for (let i = 0; i < length; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sampleRate * decay));
+        }
+      }
+      return buffer;
+    }
+
+    function updatePlayButton() {
+      const btn = $('#btn-play');
+      if (!btn) return;
+      if (isPlaying) {
+        btn.textContent = '⏸ 停止播放';
+        btn.classList.add('playing');
+      } else {
+        btn.textContent = '▶ 播放氛围音';
+        btn.classList.remove('playing');
+      }
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 初始化
+    // ═════════════════════════════════════════════════════════
+    const DEFAULT_VEC = { TOL: 0.5, SPD: 0.5, INF: 0.5, ENT: 0.5, LEAD: 0.5, VIS: 0.5 };
+    let currentVector = { ...DEFAULT_VEC };
+
+    const sliderValues = createVectorSliders($('#sliders'), (vals) => {
+      currentVector = { ...vals };
+    }, DEFAULT_VEC);
+
+    // 预设按钮
+    const presetsEl = $('#presets');
+    getPresetTypes().forEach(type => {
+      const btn = document.createElement('button');
+      btn.className = 'tag';
+      btn.textContent = type;
+      btn.style.cursor = 'pointer';
+      btn.addEventListener('click', () => {
+        const vec = presetVector(type);
+        currentVector = { ...vec };
+        DIMENSIONS.forEach(d => {
+          const input = document.querySelector(`input[data-dim="${d.key}"]`);
+          if (input) {
+            input.value = vec[d.key];
+            const valEl = input.parentElement.querySelector('.slider-value');
+            if (valEl) valEl.textContent = fmt(vec[d.key]);
+          }
+        });
+      });
+      presetsEl.appendChild(btn);
+    });
+
+    $('#btn-random').addEventListener('click', () => {
+      const vec = randomVector();
+      currentVector = { ...vec };
+      DIMENSIONS.forEach(d => {
+        const input = document.querySelector(`input[data-dim="${d.key}"]`);
+        if (input) {
+          input.value = vec[d.key];
+          const valEl = input.parentElement.querySelector('.slider-value');
+          if (valEl) valEl.textContent = fmt(vec[d.key]);
+        }
+      });
+    });
+
+    $('#btn-analyze').addEventListener('click', () => {
+      stopAmbient();
+      renderResults(currentVector);
+    });
+
+    // ═════════════════════════════════════════════════════════
+    // 结果渲染
+    // ═════════════════════════════════════════════════════════
+    function renderResults(vec) {
+      const styles = getStyleRecommendations(vec);
+      const playlists = getPlaylistRecommendations(vec);
+      const audioParams = getAudioParams(vec);
+
+      $('#results').innerHTML = `
+        <!-- 风格推荐 -->
+        <div class="result-section">
+          <div class="section-title">推荐风格</div>
+          <div>
+            ${styles.map((s, i) => `
+              <span class="style-tag animate-in" style="animation-delay:${i * 0.08}s">
+                ${s.name}
+                <small style="display:block;font-size:10px;color:var(--text-muted);margin-top:2px;">${s.mood} · ${s.bpm} BPM</small>
+                <small style="display:block;font-size:9px;color:var(--purple);">${s.archetype}原型</small>
+              </span>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 歌单推荐 -->
+        <div class="result-section">
+          <div class="section-title">网易云风格歌单</div>
+          <div class="playlist-cards">
+            ${playlists.map((p, i) => `
+              <div class="playlist-card animate-in" style="animation-delay:${i * 0.1}s">
+                <div class="pl-title">${p.title}</div>
+                <div class="pl-mood">${p.mood}</div>
+                <div class="pl-songs">${p.songs.join('<br>')}</div>
+                <div style="margin-top:8px;font-size:9px;color:var(--text-muted);">
+                  🎧 网易云音乐 · 占位歌单（后续接真实 API）
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 音频播放器 -->
+        <div class="result-section">
+          <div class="section-title">Web Audio 氛围合成</div>
+          <div class="audio-player glass">
+            <button class="btn btn-primary" id="btn-play" onclick="togglePlay()">
+              ▶ 播放氛围音
+            </button>
+            <div class="audio-status">20 秒氛围音频 · 实时合成 · 无外部文件依赖</div>
+            <div class="param-bars">
+              <div class="param-bar-item">
+                <div class="label">低频深度</div>
+                <div class="bar"><div class="fill" style="width:${audioParams.bassFreq / 100 * 100}%;background:var(--purple);"></div></div>
+                <div class="value">${audioParams.bassFreq.toFixed(0)} Hz</div>
+              </div>
+              <div class="param-bar-item">
+                <div class="label">高频亮度</div>
+                <div class="bar"><div class="fill" style="width:${audioParams.highFreq / 2000 * 100}%;background:var(--cyan);"></div></div>
+                <div class="value">${audioParams.highFreq.toFixed(0)} Hz</div>
+              </div>
+              <div class="param-bar-item">
+                <div class="label">节奏</div>
+                <div class="bar"><div class="fill" style="width:${audioParams.tempo / 120 * 100}%;background:var(--gold);"></div></div>
+                <div class="value">${audioParams.tempo.toFixed(0)} BPM</div>
+              </div>
+            </div>
+            <div class="param-bars" style="margin-top:8px;">
+              <div class="param-bar-item">
+                <div class="label">层数</div>
+                <div class="value">${audioParams.layers} 层</div>
+              </div>
+              <div class="param-bar-item">
+                <div class="label">混响</div>
+                <div class="value">${pct(audioParams.reverb)}</div>
+              </div>
+              <div class="param-bar-item">
+                <div class="label">滤波器</div>
+                <div class="value">${audioParams.filterFreq.toFixed(0)} Hz</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    window.togglePlay = function() {
+      if (isPlaying) {
+        stopAmbient();
+      } else {
+        startAmbient(currentVector);
+        updatePlayButton();
+      }
+    };
+
+    // 页面卸载时清理
+    window.addEventListener('beforeunload', () => {
+      stopAmbient();
+    });
+
+    // 初始加载
+    renderResults(currentVector);
+  </script>
+</body>
+</html>

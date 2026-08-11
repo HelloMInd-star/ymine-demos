@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Y.MINE 人格实验室</title>
+  <link rel="stylesheet" href="shared/styles.css">
+  <style>
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: 42px;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .demos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding: 0 0 60px;
+    }
+    @media (max-width: 768px) {
+      .demos-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 28px; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .demos-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .demo-card {
+      display: block;
+      text-decoration: none;
+      padding: 28px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.5s ease-out;
+    }
+    .demo-card:hover {
+      border-color: var(--purple);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(167, 139, 250, 0.12);
+    }
+    .demo-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--purple), transparent);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .demo-card:hover::before { opacity: 1; }
+    .demo-card.coming-soon {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .demo-card .emoji {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .demo-card h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: var(--purple);
+    }
+    .demo-card .desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .demo-card .badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(167, 139, 250, 0.12);
+      color: var(--purple);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+    }
+    .demo-card .badge-live {
+      background: rgba(34, 211, 238, 0.12);
+      color: var(--cyan);
+      border-color: rgba(34, 211, 238, 0.2);
+    }
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+    }
+    footer a {
+      color: var(--text-secondary);
+      font-size: 12px;
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    footer a:hover { color: var(--purple); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Hero -->
+    <div class="hero">
+      <h1 class="text-purple">Y.MINE 人格实验室</h1>
+      <p>多场景人格校准 Demo · 从偏好到压力</p>
+      <p style="color:var(--text-muted);font-size:12px;margin-top:8px;">
+        六维人格向量 (TOL/SPD/INF/ENT/LEAD/VIS) 驱动 · 深空科技风
+      </p>
+    </div>
+
+    <!-- Demo 网格 -->
+    <div class="demos-grid">
+      <!-- 人格调酒 · P0 已完成 -->
+      <a href="cocktail/" class="demo-card">
+        <span class="emoji">🍸</span>
+        <span class="badge badge-live">LIVE</span>
+        <h3>人格调酒</h3>
+        <p class="desc">六维向量 → 风味偏好 → 3 款酒品推荐<br>支持分子视图 + 时段推荐</p>
+      </a>
+
+      <!-- 人格音乐 · P0 已完成 -->
+      <a href="music/" class="demo-card">
+        <span class="emoji">🎵</span>
+        <span class="badge badge-live">LIVE</span>
+        <h3>人格音乐</h3>
+        <p class="desc">六维向量 → 音乐风格推荐 + 氛围音频<br>Web Audio API 实时合成</p>
+      </a>
+
+      <!-- 棋风投资 -->
+      <a href="chess/" class="demo-card">
+        <span class="emoji">♟️</span>
+        <span class="badge badge-live">LIVE</span>
+        <h3>棋风投资</h3>
+        <p class="desc">棋局行为 → 3D 坐标 → 投资人匹配<br>金融孪生 · 16 位投资人画像 · 4 组棋风</p>
+      </a>
+
+      <!-- 扑克压力 -->
+      <a href="poker/" class="demo-card">
+        <span class="emoji">♠️</span>
+        <span class="badge badge-live">LIVE</span>
+        <h3>扑克压力</h3>
+        <p class="desc">Poker Face Arena 彩蛋简化版<br>压力测试 · 人格驱动的 AI 对手</p>
+      </a>
+
+      <!-- 平衡分析 -->
+      <a href="balance/" class="demo-card">
+        <span class="emoji">⚖️</span>
+        <span class="badge badge-live">LIVE</span>
+        <h3>平衡分析</h3>
+        <p class="desc">16 型 MBTI 胜率分布 · 博弈论<br>纳什均衡 · 人格校准报告</p>
+      </a>
+
+      <!-- 人格护照 -->
+      <a href="passport/" class="demo-card">
+        <span class="emoji">🪪</span>
+        <span class="badge badge-live">LIVE</span>
+        <h3>人格护照</h3>
+        <p class="desc">六维向量可视化护照<br>可分享的人格名片 · 9 种人格原型</p>
+      </a>
+    </div>
+
+    <footer>
+      <a href="https://hellomind-star.github.io/ymine-demos/" target="_blank" rel="noopener">
+        github.com/hellomind-star/ymine-demos
+      </a>
+      <span style="color:var(--text-muted);margin:0 12px;">·</span>
+      <span style="color:var(--text-muted);font-size:12px;">Y.Mine 人格调酒系统 © 2026</span>
+    </footer>
+  </div>
+</body>
+</html>

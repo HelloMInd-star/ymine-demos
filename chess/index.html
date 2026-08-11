@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>棋风投资 Demo · Y.MINE 人格实验室</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    .page-header { text-align: center; padding: 40px 0 30px; }
+    .page-header h1 { font-family: var(--font-display); font-size: 32px; letter-spacing: 0.06em; }
+    .page-header p { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
+
+    .layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; padding-bottom: 60px; }
+    @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+
+    .control-panel { padding: 20px; }
+    .panel-title { font-size: 13px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .panel-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--purple), transparent); }
+
+    .signal-group { margin-bottom: 14px; }
+    .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .signal-label { font-size: 12px; font-weight: 600; }
+    .signal-value { font-size: 12px; font-family: var(--font-mono); }
+    .signal-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    .score-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
+    .score-label { color: var(--text-secondary); }
+    .score-bar { width: 80px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.06); overflow: hidden; align-self: center; }
+    .score-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+    /* 投资人卡片 */
+    .investor-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    @media (max-width: 1024px) { .investor-cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .investor-cards { grid-template-columns: 1fr; } }
+
+    .investor-card {
+      padding: 16px; border-radius: var(--radius-md); background: var(--bg-card);
+      border: 1px solid var(--border); transition: all var(--transition);
+      animation: fadeIn 0.5s ease-out;
+    }
+    .investor-card:hover { border-color: var(--purple); }
+    .investor-card .i-name { font-size: 15px; font-weight: 600; }
+    .investor-card .i-en { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+    .investor-card .i-mbti { font-size: 10px; font-family: var(--font-mono); margin-bottom: 6px; }
+    .investor-card .i-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .investor-card .i-quote { font-size: 10px; color: var(--text-secondary); font-style: italic; line-height: 1.5; margin-bottom: 8px; }
+    .investor-card .i-match { font-size: 10px; color: var(--gold); font-family: var(--font-mono); }
+    .investor-card .i-coord { font-size: 9px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px; }
+
+    /* 棋风组 */
+    .temperament-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    @media (max-width: 768px) { .temperament-grid { grid-template-columns: repeat(2, 1fr); } }
+    .temp-card {
+      padding: 14px; border-radius: var(--radius-md); background: var(--bg-card);
+      border: 1px solid var(--border); text-align: center; transition: all var(--transition);
+    }
+    .temp-card:hover { transform: translateY(-1px); }
+    .temp-card .t-symbol { font-size: 28px; margin-bottom: 4px; }
+    .temp-card .t-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .temp-card .t-archetype { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
+    .temp-card .t-poem { font-size: 10px; color: var(--text-muted); font-style: italic; line-height: 1.5; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 13px; }
+    .empty-state .big-emoji { font-size: 48px; margin-bottom: 12px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <a href="../" class="nav-brand">Y.MINE 人格实验室</a>
+      <a href="../" class="nav-back">← 返回入口</a>
+    </div>
+    <div class="page-header">
+      <h1 class="text-purple">♟️ 棋风投资</h1>
+      <p>棋局行为 → 3D 坐标 → 投资人匹配 · 金融孪生</p>
+    </div>
+
+    <div class="layout">
+      <div class="control-panel glass">
+        <div class="panel-title">棋局信号</div>
+        <div id="signals"></div>
+        <div class="btn-row" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;">
+          <button class="btn btn-primary" id="btn-random">🎲 随机棋风</button>
+          <button class="btn btn-gold" id="btn-match">♟️ 匹配投资人</button>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;" id="presets">
+          <span style="font-size:10px;color:var(--text-muted);">MBTI 预设：</span>
+        </div>
+      </div>
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <script src="../shared/theme.js"></script>
+  <script>
+    // ═════════════════════════════════════════════════════════
+    // 数据：来自主项目 investorTwin.ts + mbtiChessData.ts
+    // ═════════════════════════════════════════════════════════
+    const PIECE_COLORS = { Rook: '#22c55e', Bishop: '#f0c674', Knight: '#f472b6', Queen: '#a78bfa', King: '#fbbf24' };
+    const PIECE_NAMES = { Rook: '车', Bishop: '象', Knight: '马', Queen: '后', King: '王' };
+
+    const CHESS_PIECES = [
+      { piece: 'Rook', name: '车', style: '直线型战略家', features: '构筑防线，稳扎稳打，耐心纪律', boundary: { yMax: 0.40, xMax: 0.45, zMax: 0.40 } },
+      { piece: 'Bishop', name: '象', style: '斜线型思考者', features: '非常规角度切入，发现盲区', boundary: { yMin: 0.30, yMax: 0.50, xMin: 0.30, xMax: 0.60, zMin: 0.40, zMax: 0.60 } },
+      { piece: 'Knight', name: '马', style: '跳跃型突破者', features: '行动非线性，意外位置突破', boundary: { yMin: 0.65, xMax: 0.72, zMin: 0.70 } },
+      { piece: 'Queen', name: '后', style: '全域型进攻者', features: '攻守兼备，大范围布局', boundary: { yMin: 0.65, xMin: 0.72, zMin: 0.70 } },
+      { piece: 'King', name: '王', style: '系统型核心者', features: '原则体系中枢，全局灵魂', boundary: { yMin: 0.30, yMax: 0.72, xMin: 0.72, zMin: 0.30, zMax: 0.60 } },
+    ];
+
+    const INVESTORS = [
+      { name: '巴菲特', nameEn: 'Warren Buffett', mbti: 'INTJ', risk: 10, timeValue: 95, decisionStyle: '分析型', chessPiece: 'Rook', school: '价值投资', region: '国际', tags: ['价值投资','长期持有','安全边际'], quote: '别人恐惧我贪婪，别人贪婪我恐惧。', coordinate: { x: 0.95, y: 0.10, z: 0.05 } },
+      { name: '芒格', nameEn: 'Charlie Munger', mbti: 'INTP', risk: 20, timeValue: 95, decisionStyle: '分析型', chessPiece: 'Bishop', school: '价值投资', region: '国际', tags: ['逆向思维','多元思维模型','延迟满足'], quote: '反过来想，总是反过来想。', coordinate: { x: 0.95, y: 0.20, z: 0.15 } },
+      { name: '索罗斯', nameEn: 'George Soros', mbti: 'ENTP', risk: 85, timeValue: 50, decisionStyle: '直觉型', chessPiece: 'Queen', school: '对冲基金', region: '国际', tags: ['反身性','宏观对冲','速战速决'], quote: '对错不重要，正确时赚了多少才重要。', coordinate: { x: 0.50, y: 0.85, z: 0.82 } },
+      { name: '达利欧', nameEn: 'Ray Dalio', mbti: 'INTJ', risk: 50, timeValue: 80, decisionStyle: '分析型', chessPiece: 'King', school: '对冲基金', region: '国际', tags: ['原则驱动','系统化配置','痛苦反思'], quote: '痛苦 + 反思 = 进步。', coordinate: { x: 0.80, y: 0.50, z: 0.45 } },
+      { name: '林奇', nameEn: 'Peter Lynch', mbti: 'ENFP', risk: 65, timeValue: 55, decisionStyle: '直觉型', chessPiece: 'Knight', school: '成长投资', region: '国际', tags: ['自下而上','灵活调整','成长发现'], quote: '投资你所知道的。', coordinate: { x: 0.55, y: 0.65, z: 0.72 } },
+      { name: '孙正义', nameEn: 'Masayoshi Son', mbti: 'ENTJ', risk: 98, timeValue: 20, decisionStyle: '直觉型', chessPiece: 'Queen', school: '风险投资', region: '国际', tags: ['激进押注','愿景驱动','重仓未来'], quote: '要么做第一，要么做唯一。', coordinate: { x: 0.20, y: 0.98, z: 0.95 } },
+      { name: '格雷厄姆', nameEn: 'Benjamin Graham', mbti: 'ISTJ', risk: 5, timeValue: 85, decisionStyle: '分析型', chessPiece: 'Rook', school: '价值投资', region: '国际', tags: ['价值发现','安全边际','市场先生'], quote: '市场短期是投票机，长期是称重机。', coordinate: { x: 0.85, y: 0.05, z: 0.03 } },
+      { name: '保尔森', nameEn: 'John Paulson', mbti: 'ESTJ', risk: 90, timeValue: 45, decisionStyle: '分析型', chessPiece: 'Bishop', school: '对冲基金', region: '国际', tags: ['机会驱动','集中押注','反向操作'], quote: '当机会来临时，下重注。', coordinate: { x: 0.45, y: 0.90, z: 0.85 } },
+      { name: '伊坎', nameEn: 'Carl Icahn', mbti: 'ESTP', risk: 88, timeValue: 15, decisionStyle: '直觉型', chessPiece: 'Knight', school: '对冲基金', region: '国际', tags: ['激进主义','快速调仓','价值催化'], quote: '买低卖高，华尔街的真理。', coordinate: { x: 0.15, y: 0.88, z: 0.90 } },
+      { name: '邓普顿', nameEn: 'John Templeton', mbti: 'INFJ', risk: 45, timeValue: 98, decisionStyle: '分析型', chessPiece: 'King', school: '价值投资', region: '国际', tags: ['全球配置','逆向投资','长期复利'], quote: '最悲观的时刻，是最好的买入时机。', coordinate: { x: 0.98, y: 0.45, z: 0.35 } },
+      { name: 'Elon Musk', nameEn: 'Elon Musk', mbti: 'ENTJ', risk: 99, timeValue: 25, decisionStyle: '直觉型', chessPiece: 'Queen', school: '创业投资', region: '国际', tags: ['颠覆创新','第一性原理','极限押注'], quote: '当某件事足够重要时，即使胜算不大也该去做。', coordinate: { x: 0.25, y: 0.99, z: 0.98 } },
+      { name: 'Jeff Bezos', nameEn: 'Jeff Bezos', mbti: 'INTJ', risk: 35, timeValue: 92, decisionStyle: '分析型', chessPiece: 'Rook', school: '创业投资', region: '国际', tags: ['长期主义','客户至上','飞轮效应'], quote: '如果你决定要做得好，就值得多投入几天思考。', coordinate: { x: 0.92, y: 0.35, z: 0.25 } },
+      { name: '马云', nameEn: 'Jack Ma', mbti: 'ENFJ', risk: 75, timeValue: 70, decisionStyle: '直觉型', chessPiece: 'King', school: '创业投资', region: '中国', tags: ['战略远见','生态布局','使命驱动'], quote: '今天很残酷，明天更残酷，后天很美好。', coordinate: { x: 0.70, y: 0.75, z: 0.55 } },
+      { name: '任正非', nameEn: 'Ren Zhengfei', mbti: 'INTJ', risk: 55, timeValue: 90, decisionStyle: '分析型', chessPiece: 'Rook', school: '创业投资', region: '中国', tags: ['压强原则','危机意识','长期投入'], quote: '惶者生存，只有危机感才能驱动持续进步。', coordinate: { x: 0.90, y: 0.55, z: 0.35 } },
+      { name: 'Howard Marks', nameEn: 'Howard Marks', mbti: 'INTP', risk: 40, timeValue: 75, decisionStyle: '分析型', chessPiece: 'Bishop', school: '价值投资', region: '国际', tags: ['周期思维','第二层思考','风险控制'], quote: '你不可能做着和别人一样的事，却期望获得比别人更好的结果。', coordinate: { x: 0.75, y: 0.40, z: 0.42 } },
+      { name: 'Cathie Wood', nameEn: 'Cathie Wood', mbti: 'ENTP', risk: 95, timeValue: 65, decisionStyle: '直觉型', chessPiece: 'Knight', school: '成长投资', region: '国际', tags: ['颠覆性创新','长期主题','高波动容忍'], quote: '创新会带来颠覆，而颠覆会创造巨大的价值。', coordinate: { x: 0.65, y: 0.95, z: 0.88 } },
+    ];
+
+    const CHESS_TEMPERAMENTS = [
+      { id: 'NF', name: '紫人组', color: '#9d6bbf', chessArchetype: '诗意弈者', chessStyle: '以美感与直觉布局 · 敢于牺牲求攻势', poem: '紫人下棋 · 像在棋盘上写一首未完的诗', mbtiMembers: ['INFJ','INFP','ENFJ','ENFP'], vector: { TOL: 0.55, SPD: 0.62, INF: 0.45, ENT: 0.72, LEAD: 0.5, VIS: 0.78 } },
+      { id: 'NT', name: '黄人组', color: '#f0c674', chessArchetype: '算度大师', chessStyle: '以深度计算与逻辑评估主导局面', poem: '黄人下棋 · 每一步都在解一道尚未写出的方程', mbtiMembers: ['INTJ','INTP','ENTJ','ENTP'], vector: { TOL: 0.75, SPD: 0.55, INF: 0.82, ENT: 0.4, LEAD: 0.65, VIS: 0.6 } },
+      { id: 'SJ', name: '蓝人组', color: '#4d6b8f', chessArchetype: '阵地守将', chessStyle: '稳健布局 · 步步为营 · 不轻易冒险', poem: '蓝人下棋 · 像在棋盘上筑一座不会倒的城', mbtiMembers: ['ISTJ','ISFJ','ESTJ','ESFJ'], vector: { TOL: 0.8, SPD: 0.45, INF: 0.7, ENT: 0.35, LEAD: 0.55, VIS: 0.4 } },
+      { id: 'SP', name: '绿人组', color: '#8fa86b', chessArchetype: '战术猎手', chessStyle: '灵活变阵 · 战术敏锐 · 抓住瞬间机会', poem: '绿人下棋 · 像猎手在棋盘的缝隙里寻找那一瞬的破绽', mbtiMembers: ['ISTP','ISFP','ESTP','ESFP'], vector: { TOL: 0.5, SPD: 0.8, INF: 0.4, ENT: 0.6, LEAD: 0.55, VIS: 0.62 } },
+    ];
+
+    const MBTI_INVEST_STYLES = {
+      INTJ: { typeName: '建筑师', chessPiece: 'Rook', features: '战略导向，偏好独立研究，追求最优解', strategy: '价值投资、长期规划、系统化配置' },
+      INTP: { typeName: '思想家', chessPiece: 'Bishop', features: '理论驱动，好奇心强，善于发现规律', strategy: '深度研究、逆向思考、第二层思维' },
+      ENTJ: { typeName: '指挥官', chessPiece: 'Queen', features: '果断自信，目标导向，敢于押注', strategy: '主动出击、集中投资、愿景驱动' },
+      ENTP: { typeName: '辩论家', chessPiece: 'Knight', features: '创新思维，善于发现机会，多角度思考', strategy: '颠覆性投资、灵活调仓、趋势捕捉' },
+      INFJ: { typeName: '倡导者', chessPiece: 'King', features: '洞察力强，价值驱动，追求意义', strategy: '使命投资、长期价值、影响力投资' },
+      INFP: { typeName: '调停者', chessPiece: 'Bishop', features: '理想主义，关注长期价值，忠诚于信念', strategy: '价值观投资、长期持有、伦理投资' },
+      ENFJ: { typeName: '主人公', chessPiece: 'King', features: '富有感染力，激励他人，团队协作', strategy: '生态投资、社会企业、长期愿景' },
+      ENFP: { typeName: '竞赛者', chessPiece: 'Knight', features: '热情洋溢，适应力强，善于发现可能', strategy: '成长投资、灵活配置、机会捕捉' },
+      ISTJ: { typeName: '物流师', chessPiece: 'Rook', features: '尽职尽责，注重细节，遵守规则', strategy: '价值投资、安全边际、长期持有' },
+      ISFJ: { typeName: '守卫者', chessPiece: 'Rook', features: '稳定可靠，保守谨慎，注重保护', strategy: '防御性投资、蓝筹股、定息收入' },
+      ESTJ: { typeName: '执行者', chessPiece: 'Bishop', features: '高效务实，注重结果，执行力强', strategy: '机会投资、集中押注、主动管理' },
+      ESFJ: { typeName: '供给者', chessPiece: 'Rook', features: '乐于助人，关注他人，社区协作', strategy: '稳健配置、分红投资、长期积累' },
+      ISTP: { typeName: '鉴赏家', chessPiece: 'Knight', features: '灵活务实，注重效率，敢于冒险', strategy: '短线交易、机会投资、高风险高回报' },
+      ISFP: { typeName: '探险家', chessPiece: 'Knight', features: '富有艺术感，追求自由，适应变化', strategy: '灵活配置、机会主义、分散投资' },
+      ESTP: { typeName: '企业家', chessPiece: 'Knight', features: '行动导向，善于把握机会，勇于竞争', strategy: '激进投资、短线操作、趋势跟踪' },
+      ESFP: { typeName: '表演者', chessPiece: 'Queen', features: '充满活力，享受当下，善于社交', strategy: '社交投资、趋势投资、灵活配置' },
+    };
+
+    const SIGNAL_DEFS = [
+      { key: 'openingAggression', label: '开局进攻', dim: 'EI', poleA: 'E·主动进攻', poleB: 'I·防守反击', color: '#A78BFA', desc: '高=主动发起攻势 / 低=稳固防线等对手犯错' },
+      { key: 'moveIntuition', label: '走棋直觉', dim: 'NS', poleA: 'N·直觉快走', poleB: 'S·长考慢走', color: '#22D3EE', desc: '高=直觉走法、敢于弃子 / 低=计算走法、稳健' },
+      { key: 'decisionLogic', label: '决策逻辑', dim: 'TF', poleA: 'T·逻辑评估', poleB: 'F·情绪判断', color: '#FBBF24', desc: '高=风格稳定不随局势波动 / 低=受局势情绪影响' },
+      { key: 'endgameDecisiveness', label: '收局果断', dim: 'JP', poleA: 'J·快速收局', poleB: 'P·继续施压', color: '#34D399', desc: '高=优势时快速收束 / 低=优势时继续施压扩战' },
+    ];
+
+    // ═════════════════════════════════════════════════════════
+    // 核心算法：棋风信号 → 3D 坐标
+    // ═════════════════════════════════════════════════════════
+    function signalsToCoordinate(sig) {
+      const x = (1 - sig.openingAggression) * 0.35 + (1 - sig.moveIntuition) * 0.25 + sig.decisionLogic * 0.25 + sig.endgameDecisiveness * 0.15;
+      const y = sig.openingAggression * 0.35 + sig.moveIntuition * 0.30 + (1 - sig.decisionLogic) * 0.20 + (1 - sig.endgameDecisiveness) * 0.15;
+      const z = sig.openingAggression * 0.50 + (1 - sig.endgameDecisiveness) * 0.35 + sig.moveIntuition * 0.15;
+      return { x: clamp(x, 0, 1), y: clamp(y, 0, 1), z: clamp(z, 0, 1) };
+    }
+
+    function classifyPiece(coord) {
+      for (const p of CHESS_PIECES) {
+        const b = p.boundary;
+        if (b.yMax != null && coord.y > b.yMax) continue;
+        if (b.yMin != null && coord.y < b.yMin) continue;
+        if (b.xMax != null && coord.x > b.xMax) continue;
+        if (b.xMin != null && coord.x < b.xMin) continue;
+        if (b.zMax != null && coord.z > b.zMax) continue;
+        if (b.zMin != null && coord.z < b.zMin) continue;
+        return p;
+      }
+      return CHESS_PIECES[0]; // 默认 Rook
+    }
+
+    function signalsToTemperament(sig) {
+      const nf = sig.moveIntuition * (1 - sig.decisionLogic);
+      const nt = sig.moveIntuition * sig.decisionLogic;
+      const sj = (1 - sig.moveIntuition) * sig.endgameDecisiveness;
+      const sp = (1 - sig.moveIntuition) * (1 - sig.endgameDecisiveness);
+      const max = Math.max(nf, nt, sj, sp);
+      const id = max === nf ? 'NF' : max === nt ? 'NT' : max === sj ? 'SJ' : 'SP';
+      return CHESS_TEMPERAMENTS.find(t => t.id === id);
+    }
+
+    function matchInvestors(coord) {
+      return INVESTORS.map(inv => {
+        const dx = coord.x - inv.coordinate.x;
+        const dy = coord.y - inv.coordinate.y;
+        const dz = coord.z - inv.coordinate.z;
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        return { ...inv, distance: dist, score: 1 - dist / Math.sqrt(3) };
+      }).sort((a, b) => a.distance - b.distance);
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 初始化
+    // ═════════════════════════════════════════════════════════
+    const DEFAULT_SIGNALS = { openingAggression: 0.3, moveIntuition: 0.88, decisionLogic: 0.92, endgameDecisiveness: 0.85 };
+    let currentSignals = { ...DEFAULT_SIGNALS };
+
+    const signalsEl = $('#signals');
+    SIGNAL_DEFS.forEach(def => {
+      const div = document.createElement('div');
+      div.className = 'signal-group';
+      div.innerHTML = `
+        <div class="signal-header">
+          <span class="signal-label" style="color:${def.color}">${def.label} <small>${def.dim}</small></span>
+          <span class="signal-value" style="color:${def.color}" id="val-${def.key}">${currentSignals[def.key].toFixed(2)}</span>
+        </div>
+        <input type="range" min="0" max="1" step="0.01" value="${currentSignals[def.key]}" data-key="${def.key}">
+        <div class="signal-desc">${def.poleA} ↔ ${def.poleB} · ${def.desc}</div>
+      `;
+      signalsEl.appendChild(div);
+    });
+
+    signalsEl.addEventListener('input', (e) => {
+      if (e.target.type === 'range') {
+        const key = e.target.dataset.key;
+        currentSignals[key] = parseFloat(e.target.value);
+        const valEl = document.getElementById('val-' + key);
+        if (valEl) valEl.textContent = currentSignals[key].toFixed(2);
+      }
+    });
+
+    $('#btn-random').addEventListener('click', () => {
+      SIGNAL_DEFS.forEach(def => {
+        currentSignals[def.key] = Math.round(Math.random() * 100) / 100;
+        const input = document.querySelector(`input[data-key="${def.key}"]`);
+        if (input) input.value = currentSignals[def.key];
+        const valEl = document.getElementById('val-' + def.key);
+        if (valEl) valEl.textContent = currentSignals[def.key].toFixed(2);
+      });
+    });
+
+    $('#btn-match').addEventListener('click', () => match());
+
+    // 预设
+    const ALL_MBTI = ['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
+    const presetsEl = $('#presets');
+    ALL_MBTI.forEach(mbti => {
+      const btn = document.createElement('button');
+      btn.className = 'tag';
+      btn.textContent = mbti;
+      btn.style.cursor = 'pointer';
+      btn.addEventListener('click', () => {
+        const style = MBTI_INVEST_STYLES[mbti];
+        const temp = signalsToTemperament({ openingAggression: 0.5, moveIntuition: 0.5, decisionLogic: 0.5, endgameDecisiveness: 0.5 });
+        // 根据 MBTI 字母推断信号
+        const sig = {
+          openingAggression: mbti[0] === 'E' ? 0.75 : 0.25,
+          moveIntuition: mbti[1] === 'N' ? 0.78 : 0.22,
+          decisionLogic: mbti[2] === 'T' ? 0.82 : 0.25,
+          endgameDecisiveness: mbti[3] === 'J' ? 0.80 : 0.22,
+        };
+        currentSignals = sig;
+        SIGNAL_DEFS.forEach(def => {
+          const input = document.querySelector(`input[data-key="${def.key}"]`);
+          if (input) input.value = sig[def.key];
+          const valEl = document.getElementById('val-' + def.key);
+          if (valEl) valEl.textContent = sig[def.key].toFixed(2);
+        });
+      });
+      presetsEl.appendChild(btn);
+    });
+
+    function match() {
+      const coord = signalsToCoordinate(currentSignals);
+      const piece = classifyPiece(coord);
+      const temperament = signalsToTemperament(currentSignals);
+      const ranked = matchInvestors(coord);
+      const top3 = ranked.slice(0, 3);
+
+      $('#results').innerHTML = `
+        <div class="temperament-grid">
+          ${CHESS_TEMPERAMENTS.map(t => `
+            <div class="temp-card" style="border-color:${t.id === temperament.id ? t.color : 'var(--border)'};box-shadow:${t.id === temperament.id ? '0 0 20px ' + t.color + '22' : 'none'}">
+              <div class="t-symbol" style="color:${t.color}">${t.id === 'NF' ? '🔮' : t.id === 'NT' ? '♟️' : t.id === 'SJ' ? '🏰' : '🌿'}</div>
+              <div class="t-name" style="color:${t.color}">${t.name}</div>
+              <div class="t-archetype">${t.chessArchetype}</div>
+              <div class="t-poem">"${t.poem}"</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${t.mbtiMembers.join(' · ')}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="glass" style="padding:16px;margin-bottom:16px;text-align:center;">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">3D 坐标</div>
+          <div style="font-size:18px;font-family:var(--font-mono);">
+            <span style="color:#A78BFA;">X·战略 ${coord.x.toFixed(2)}</span>
+            <span style="margin:0 12px;color:var(--text-muted);">|</span>
+            <span style="color:#22D3EE;">Y·风险 ${coord.y.toFixed(2)}</span>
+            <span style="margin:0 12px;color:var(--text-muted);">|</span>
+            <span style="color:#FBBF24;">Z·攻击 ${coord.z.toFixed(2)}</span>
+          </div>
+          <div style="font-size:12px;margin-top:8px;">
+            棋子：<span style="color:${PIECE_COLORS[piece.piece]};font-weight:600;">${piece.name} · ${piece.style}</span>
+            <span style="color:var(--text-muted);margin-left:8px;">${piece.features}</span>
+          </div>
+        </div>
+
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Top 3 投资人匹配</div>
+        <div class="investor-cards">
+          ${top3.map((inv, i) => `
+            <div class="investor-card" style="animation-delay:${i * 0.1}s">
+              <div class="i-name" style="color:${PIECE_COLORS[inv.chessPiece]}">${inv.name}</div>
+              <div class="i-en">${inv.nameEn}</div>
+              <div class="i-mbti">${inv.mbti} · ${PIECE_NAMES[inv.chessPiece]} · 风险${inv.risk}% · ${inv.decisionStyle}</div>
+              <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;">${inv.school} · ${inv.region}</div>
+              <div class="i-tags">${inv.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+              <div class="i-quote">"${inv.quote}"</div>
+              <div class="i-match">匹配度 ${(inv.score * 100).toFixed(0)}%</div>
+              <div class="i-coord">坐标 (${inv.coordinate.x.toFixed(2)}, ${inv.coordinate.y.toFixed(2)}, ${inv.coordinate.z.toFixed(2)})</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    match();
+  </script>
+</body>
+</html>

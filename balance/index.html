@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>平衡分析 Demo · Y.MINE 人格实验室</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    .page-header { text-align: center; padding: 40px 0 30px; }
+    .page-header h1 { font-family: var(--font-display); font-size: 32px; letter-spacing: 0.06em; }
+    .page-header p { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
+
+    .controls { display: flex; gap: 12px; align-items: center; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+    .controls .btn { font-size: 13px; }
+    .controls .rounds { font-size: 12px; color: var(--text-secondary); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card {
+      padding: 16px; border-radius: var(--radius-md); text-align: center;
+      background: var(--bg-card); border: 1px solid var(--border);
+    }
+    .stat-card .s-value { font-size: 28px; font-family: var(--font-display); font-weight: 700; }
+    .stat-card .s-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; margin-top: 4px; }
+
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 768px) { .chart-row { grid-template-columns: 1fr; } }
+    .chart-box { height: 380px; }
+
+    .section-title { font-size: 14px; color: var(--purple); letter-spacing: 0.08em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--purple), transparent); }
+
+    /* 棋风组卡片 */
+    .temp-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    @media (max-width: 1024px) { .temp-cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .temp-cards { grid-template-columns: 1fr; } }
+    .temp-card {
+      padding: 20px; border-radius: var(--radius-md); background: var(--bg-card);
+      border: 1px solid var(--border); transition: all var(--transition);
+    }
+    .temp-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    .temp-card .tc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .temp-card .tc-symbol { font-size: 28px; }
+    .temp-card .tc-name { font-size: 15px; font-weight: 700; }
+    .temp-card .tc-archetype { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+    .temp-card .tc-line { font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; line-height: 1.5; }
+    .temp-card .tc-line strong { font-size: 9px; color: var(--text-muted); display: inline-block; width: 28px; }
+    .temp-card .tc-members { font-size: 9px; color: var(--text-muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+    .temp-card .tc-poem { font-size: 10px; color: var(--text-muted); font-style: italic; margin-top: 6px; line-height: 1.5; }
+
+    .table-box { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 24px; }
+    table { width: 100%; font-size: 11px; border-collapse: collapse; }
+    th { padding: 10px 12px; text-align: left; background: rgba(0,0,0,0.3); color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+    td { padding: 8px 12px; border-top: 1px solid var(--border); color: var(--text-secondary); }
+    tr:hover td { background: rgba(167, 139, 250, 0.04); }
+    .td-group { color: var(--gold); }
+    .td-high { color: #34D399; font-weight: 600; }
+    .td-low { color: #F87171; font-weight: 600; }
+    .td-mid { color: #FBBF24; }
+
+    .nash-box { padding: 20px; margin-bottom: 24px; }
+    .nash-box h3 { font-size: 14px; color: var(--cyan); margin-bottom: 4px; }
+    .nash-box .nash-subtitle { font-size: 10px; color: var(--text-muted); margin-bottom: 16px; }
+    .nash-table { overflow-x: auto; }
+    .nash-table table th { background: rgba(34, 211, 238, 0.06); }
+    .td-blue { color: #34D399; }
+    .td-red { color: #F87171; }
+
+    .scenario-box { margin-bottom: 24px; }
+    .scenario-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 768px) { .scenario-row { grid-template-columns: 1fr; } }
+    .scenario-card {
+      padding: 16px; border-radius: var(--radius-md); background: var(--bg-card);
+      border: 1px solid var(--border); text-align: center;
+    }
+    .scenario-card .sc-emoji { font-size: 24px; margin-bottom: 6px; }
+    .scenario-card .sc-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .scenario-card .sc-desc { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; }
+    .scenario-card .sc-rate { font-size: 20px; font-family: var(--font-mono); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <a href="../" class="nav-brand">Y.MINE 人格实验室</a>
+      <a href="../" class="nav-back">← 返回入口</a>
+    </div>
+    <div class="page-header">
+      <h1 class="text-purple">⚖️ 平衡分析</h1>
+      <p>16 型 MBTI 胜率分布 · 博弈论 · 纳什均衡 · 棋局行为验证</p>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="btn-run">▶ 运行平衡测试</button>
+      <button class="btn btn-outline" id="btn-run-1000">▶ 1000 局深度测试</button>
+      <span class="rounds" id="rounds-info">模拟 200 局</span>
+    </div>
+
+    <div class="stats-grid" id="stats"></div>
+
+    <div class="section-title">♟️ 棋风人格 · 四组棋局行为</div>
+    <div class="temp-cards" id="temp-cards"></div>
+
+    <div class="chart-row">
+      <div class="glass chart-box" id="chart-bar"></div>
+      <div class="glass chart-box" id="chart-radar"></div>
+    </div>
+
+    <div class="section-title">📊 16 型 MBTI 胜率明细</div>
+    <div class="table-box" id="table"></div>
+
+    <div class="section-title">🎯 场景分析 · 蓝海/红海/均衡</div>
+    <div class="scenario-box">
+      <div class="scenario-row" id="scenarios"></div>
+    </div>
+
+    <div class="nash-box glass">
+      <h3>🧮 纳什均衡分析 · 博弈论评估</h3>
+      <p class="nash-subtitle">基于棋局信号 → 博弈论输入 → 均衡评分 & 策略推荐</p>
+      <div class="nash-table" id="nash"></div>
+    </div>
+  </div>
+
+  <script src="../shared/theme.js"></script>
+  <script>
+    // ═════════════════════════════════════════════════════════
+    // 数据：来自主项目 mbtiChessData.ts + balanceAnalyzer.ts
+    // ═════════════════════════════════════════════════════════
+
+    // 16 型 MBTI 棋局信号
+    const MBTI_SIGNALS = {
+      INFJ: { openingAggression: 0.25, moveIntuition: 0.85, decisionLogic: 0.30, endgameDecisiveness: 0.82 },
+      INFP: { openingAggression: 0.18, moveIntuition: 0.92, decisionLogic: 0.22, endgameDecisiveness: 0.25 },
+      ENFJ: { openingAggression: 0.80, moveIntuition: 0.78, decisionLogic: 0.35, endgameDecisiveness: 0.78 },
+      ENFP: { openingAggression: 0.88, moveIntuition: 0.90, decisionLogic: 0.28, endgameDecisiveness: 0.20 },
+      INTJ: { openingAggression: 0.30, moveIntuition: 0.88, decisionLogic: 0.92, endgameDecisiveness: 0.85 },
+      INTP: { openingAggression: 0.22, moveIntuition: 0.85, decisionLogic: 0.88, endgameDecisiveness: 0.30 },
+      ENTJ: { openingAggression: 0.92, moveIntuition: 0.82, decisionLogic: 0.90, endgameDecisiveness: 0.88 },
+      ENTP: { openingAggression: 0.85, moveIntuition: 0.88, decisionLogic: 0.82, endgameDecisiveness: 0.22 },
+      ISTJ: { openingAggression: 0.15, moveIntuition: 0.20, decisionLogic: 0.85, endgameDecisiveness: 0.88 },
+      ISFJ: { openingAggression: 0.12, moveIntuition: 0.18, decisionLogic: 0.30, endgameDecisiveness: 0.82 },
+      ESTJ: { openingAggression: 0.82, moveIntuition: 0.22, decisionLogic: 0.88, endgameDecisiveness: 0.90 },
+      ESFJ: { openingAggression: 0.78, moveIntuition: 0.20, decisionLogic: 0.28, endgameDecisiveness: 0.85 },
+      ISTP: { openingAggression: 0.25, moveIntuition: 0.22, decisionLogic: 0.82, endgameDecisiveness: 0.28 },
+      ISFP: { openingAggression: 0.20, moveIntuition: 0.25, decisionLogic: 0.25, endgameDecisiveness: 0.22 },
+      ESTP: { openingAggression: 0.90, moveIntuition: 0.28, decisionLogic: 0.78, endgameDecisiveness: 0.25 },
+      ESFP: { openingAggression: 0.88, moveIntuition: 0.30, decisionLogic: 0.22, endgameDecisiveness: 0.20 },
+    };
+
+    // 四组棋风人格 · 来自主项目 CHESS_TEMPERAMENTS
+    const CHESS_TEMPERAMENTS = [
+      {
+        id: 'NF', name: '紫人组', color: '#9d6bbf', secondaryColor: '#c8a5e0',
+        chessArchetype: '诗意弈者', chessStyle: '以美感与直觉布局 · 敢于牺牲求攻势',
+        symbol: '🔮', signLabel: '紫',
+        openingStrategy: '柔性布局 · 重视棋子协调的美感与潜力',
+        midgameTendency: '直觉走法 · 敢于弃子求势 · 以想象力破局',
+        endgameStyle: '追求优雅收局 · 不喜枯燥的技术性残局',
+        poem: '紫人下棋 · 像在棋盘上写一首未完的诗',
+        mbtiMembers: ['INFJ', 'INFP', 'ENFJ', 'ENFP'],
+        vector: { TOL: 0.55, SPD: 0.62, INF: 0.45, ENT: 0.72, LEAD: 0.5, VIS: 0.78 },
+      },
+      {
+        id: 'NT', name: '黄人组', color: '#f0c674', secondaryColor: '#f5d88f',
+        chessArchetype: '算度大师', chessStyle: '以深度计算与逻辑评估主导局面',
+        symbol: '♟️', signLabel: '黄',
+        openingStrategy: '理论型开局 · 精确准备 · 追求开局优势',
+        midgameTendency: '深度计算 · 逻辑评估局面 · 风格稳定不波动',
+        endgameStyle: '技术性残局 · 精确收束 · 善于转化微小优势',
+        poem: '黄人下棋 · 每一步都在解一道尚未写出的方程',
+        mbtiMembers: ['INTJ', 'INTP', 'ENTJ', 'ENTP'],
+        vector: { TOL: 0.75, SPD: 0.55, INF: 0.82, ENT: 0.4, LEAD: 0.65, VIS: 0.6 },
+      },
+      {
+        id: 'SJ', name: '蓝人组', color: '#4d6b8f', secondaryColor: '#8aa5c4',
+        chessArchetype: '阵地守将', chessStyle: '稳健布局 · 步步为营 · 不轻易冒险',
+        symbol: '🏰', signLabel: '蓝',
+        openingStrategy: '稳健布局 · 重视兵形结构与阵地稳固',
+        midgameTendency: '步步为营 · 不轻易冒险 · 以防反等对手失误',
+        endgameStyle: '稳健收局 · 重视子力优势 · 不给对手反扑空间',
+        poem: '蓝人下棋 · 像在棋盘上筑一座不会倒的城',
+        mbtiMembers: ['ISTJ', 'ISFJ', 'ESTJ', 'ESFJ'],
+        vector: { TOL: 0.8, SPD: 0.45, INF: 0.7, ENT: 0.35, LEAD: 0.55, VIS: 0.4 },
+      },
+      {
+        id: 'SP', name: '绿人组', color: '#8fa86b', secondaryColor: '#b8d49b',
+        chessArchetype: '战术猎手', chessStyle: '灵活变阵 · 战术敏锐 · 抓住瞬间机会',
+        symbol: '🌿', signLabel: '绿',
+        openingStrategy: '灵活变阵 · 不拘理论 · 随对手调整开局',
+        midgameTendency: '战术敏锐 · 抓住瞬间机会 · 实战型计算',
+        endgameStyle: '实战型残局 · 善于制造压力 · 逼对手犯错',
+        poem: '绿人下棋 · 像猎手在棋盘的缝隙里寻找那一瞬的破绽',
+        mbtiMembers: ['ISTP', 'ISFP', 'ESTP', 'ESFP'],
+        vector: { TOL: 0.5, SPD: 0.8, INF: 0.4, ENT: 0.6, LEAD: 0.55, VIS: 0.62 },
+      },
+    ];
+
+    // 16 型棋风人格细分
+    const MBTI_CHESS_PERSONA = {
+      INTJ: { chessName: '战略建筑师', signature: '后手布局 · 精确计算 · 耐心收束', chessPiece: 'Rook', investStyle: '价值投资、长期规划、系统化配置' },
+      INTP: { chessName: '理论思想家', signature: '深度研究 · 逆向思考 · 第二层思维', chessPiece: 'Bishop', investStyle: '深度研究、逆向思考、多元思维' },
+      ENTJ: { chessName: '战场指挥官', signature: '主动出击 · 集中突破 · 果断收束', chessPiece: 'Queen', investStyle: '主动出击、集中投资、愿景驱动' },
+      ENTP: { chessName: '博弈辩论家', signature: '创新破局 · 多角度切入 · 灵活变阵', chessPiece: 'Knight', investStyle: '颠覆性投资、灵活调仓、趋势捕捉' },
+      INFJ: { chessName: '洞察倡导者', signature: '直觉预判 · 价值驱动 · 优雅收局', chessPiece: 'King', investStyle: '使命投资、长期价值、影响力投资' },
+      INFP: { chessName: '理想调停者', signature: '美学布局 · 坚守信念 · 创意走法', chessPiece: 'Bishop', investStyle: '价值观投资、长期持有、伦理投资' },
+      ENFJ: { chessName: '感召主人公', signature: '全局感染 · 协同布局 · 团队制胜', chessPiece: 'King', investStyle: '生态投资、社会企业、长期愿景' },
+      ENFP: { chessName: '热情竞赛者', signature: '爆发式开局 · 灵活应变 · 机会捕捉', chessPiece: 'Knight', investStyle: '成长投资、灵活配置、机会捕捉' },
+      ISTJ: { chessName: '严谨物流师', signature: '稳健开局 · 步步为营 · 安全边际', chessPiece: 'Rook', investStyle: '价值投资、安全边际、长期持有' },
+      ISFJ: { chessName: '守护守卫者', signature: '防御优先 · 保护子力 · 稳定收束', chessPiece: 'Rook', investStyle: '防御性投资、蓝筹股、定息收入' },
+      ESTJ: { chessName: '高效执行者', signature: '强力开局 · 效率优先 · 结果导向', chessPiece: 'Bishop', investStyle: '机会投资、集中押注、主动管理' },
+      ESFJ: { chessName: '协作供给者', signature: '稳健布局 · 团队协作 · 复利积累', chessPiece: 'Rook', investStyle: '稳健配置、分红投资、长期积累' },
+      ISTP: { chessName: '实战鉴赏家', signature: '灵活应变 · 短线出击 · 效率优先', chessPiece: 'Knight', investStyle: '短线交易、机会投资、高风险高回报' },
+      ISFP: { chessName: '艺术探险家', signature: '随性走法 · 美感驱动 · 自由布局', chessPiece: 'Knight', investStyle: '灵活配置、机会主义、分散投资' },
+      ESTP: { chessName: '激进企业家', signature: '极限进攻 · 高风险押注 · 快速决断', chessPiece: 'Knight', investStyle: '激进投资、短线操作、趋势跟踪' },
+      ESFP: { chessName: '舞台表演者', signature: '华丽开局 · 社交驱动 · 趋势捕捉', chessPiece: 'Queen', investStyle: '社交投资、趋势投资、灵活配置' },
+    };
+
+    const TEMPERAMENT_COLORS = { NF: '#9d6bbf', NT: '#f0c674', SJ: '#4d6b8f', SP: '#8fa86b' };
+    const TEMPERAMENT_NAMES = { NF: '紫人组', NT: '黄人组', SJ: '蓝人组', SP: '绿人组' };
+
+    function mbtiToTemp(mbti) {
+      const s = mbti[1];
+      if (s === 'N') return mbti[2] === 'F' ? 'NF' : 'NT';
+      if (s === 'S') return mbti[3] === 'J' ? 'SJ' : 'SP';
+      return 'NT';
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 渲染棋风组卡片
+    // ═════════════════════════════════════════════════════════
+    function renderTemperamentCards() {
+      $('#temp-cards').innerHTML = CHESS_TEMPERAMENTS.map(t => `
+        <div class="temp-card" style="border-color:${t.color}33;">
+          <div class="tc-header">
+            <span class="tc-symbol">${t.symbol}</span>
+            <div>
+              <div class="tc-name" style="color:${t.color}">${t.name} <span style="font-size:10px;opacity:0.6;">${t.signLabel}</span></div>
+              <div class="tc-archetype">${t.chessArchetype} · ${t.chessStyle}</div>
+            </div>
+          </div>
+          <div class="tc-line"><strong>开局</strong>${t.openingStrategy}</div>
+          <div class="tc-line"><strong>中局</strong>${t.midgameTendency}</div>
+          <div class="tc-line"><strong>残局</strong>${t.endgameStyle}</div>
+          <div class="tc-poem">"${t.poem}"</div>
+          <div class="tc-members">${t.mbtiMembers.join(' · ')}</div>
+        </div>
+      `).join('');
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 棋局信号 → 博弈论输入
+    // ═════════════════════════════════════════════════════════
+    function signalsToGameTheory(sig) {
+      return {
+        competitionIntensity: clamp(sig.openingAggression * 0.5 + sig.decisionLogic * 0.5, 0.01, 0.99),
+        marketGrowth: clamp(sig.moveIntuition * 0.5 + sig.endgameDecisiveness * 0.5, 0.01, 0.99),
+        cooperationBonus: clamp(1 - sig.openingAggression * 0.6, 0.01, 0.99),
+        priceWarCost: clamp(sig.openingAggression * 0.4 + sig.decisionLogic * 0.3, 0.01, 0.99),
+      };
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 简化模拟
+    // ═════════════════════════════════════════════════════════
+    function simulateOneGame(mbti) {
+      const sig = MBTI_SIGNALS[mbti];
+      const foldRate = 0.15 + (1 - sig.openingAggression) * 0.25;
+      const raiseRate = 0.10 + sig.openingAggression * 0.35;
+      const bluffFreq = 0.05 + (1 - sig.decisionLogic) * 0.25 + sig.openingAggression * 0.15;
+      const winRate = 0.35 + sig.decisionLogic * 0.25 + sig.endgameDecisiveness * 0.15 + (1 - sig.openingAggression) * 0.15;
+
+      const noise = (Math.random() - 0.5) * 0.2;
+      const finalWin = clamp(winRate + noise, 0.05, 0.95);
+
+      const win = Math.random() < finalWin;
+      const fold = Math.random() < foldRate;
+      const raise = Math.random() < raiseRate;
+      const bluff = Math.random() < bluffFreq;
+
+      // 场景分类
+      const sigGt = signalsToGameTheory(sig);
+      let scenario = 'balanced';
+      if (sigGt.competitionIntensity > 0.55) scenario = 'red_ocean';
+      else if (sigGt.marketGrowth > 0.55) scenario = 'blue_ocean';
+
+      return { win, fold, raise, bluff, winRate: finalWin, aggression: sig.openingAggression, tiltResist: sig.decisionLogic, scenario };
+    }
+
+    function runSimulation(totalRounds) {
+      const mbtiList = Object.keys(MBTI_SIGNALS);
+      const results = {};
+      mbtiList.forEach(mbti => {
+        let wins = 0, folds = 0, raises = 0, bluffs = 0, totalWinRate = 0, totalAgg = 0, totalTilt = 0;
+        const scenarioWins = { blue_ocean: 0, red_ocean: 0, balanced: 0 };
+        const scenarioTotal = { blue_ocean: 0, red_ocean: 0, balanced: 0 };
+        for (let i = 0; i < totalRounds; i++) {
+          const r = simulateOneGame(mbti);
+          if (r.win) wins++;
+          if (r.fold) folds++;
+          if (r.raise) raises++;
+          if (r.bluff) bluffs++;
+          totalWinRate += r.winRate;
+          totalAgg += r.aggression;
+          totalTilt += r.tiltResist;
+          scenarioTotal[r.scenario]++;
+          if (r.win) scenarioWins[r.scenario]++;
+        }
+        results[mbti] = {
+          wins, losses: totalRounds - wins, winRate: wins / totalRounds,
+          foldRate: folds / totalRounds, raiseRate: raises / totalRounds,
+          bluffFreq: bluffs / totalRounds, aggression: totalAgg / totalRounds,
+          tiltResist: totalTilt / totalRounds, total: totalRounds,
+          scenarioWins, scenarioTotal,
+        };
+      });
+      return results;
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 纳什均衡分析
+    // ═════════════════════════════════════════════════════════
+    function nashAnalysis(results) {
+      const mbtiList = Object.keys(results);
+      return mbtiList.map(mbti => {
+        const r = results[mbti];
+        const sig = MBTI_SIGNALS[mbti];
+        const gt = signalsToGameTheory(sig);
+        const temp = mbtiToTemp(mbti);
+
+        const equilibriumScore = clamp((r.tiltResist * 0.5 + (1 - r.aggression) * 0.3 + r.winRate * 0.2), 0, 1);
+        const strategyRecommendation = clamp(r.winRate * 0.5 + r.tiltResist * 0.3 + (1 - r.bluffFreq) * 0.2, 0, 1);
+        const marketRegime = r.winRate > 0.5 ? 'BLUE_OCEAN' : 'RED_OCEAN';
+        const nashStability = clamp((r.tiltResist * 0.6 + r.winRate * 0.3 + (1 - r.aggression) * 0.1), 0, 1);
+
+        return {
+          mbti, temp, equilibriumScore, strategyRecommendation, marketRegime, nashStability,
+          winRate: r.winRate, aggression: r.aggression, tiltResist: r.tiltResist,
+          competitionIntensity: gt.competitionIntensity, marketGrowth: gt.marketGrowth,
+          cooperationBonus: gt.cooperationBonus, priceWarCost: gt.priceWarCost,
+        };
+      });
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 渲染
+    // ═════════════════════════════════════════════════════════
+    let chartBar, chartRadar;
+
+    function initCharts() {
+      chartBar = echarts.init(document.getElementById('chart-bar'), null, { renderer: 'canvas' });
+      chartRadar = echarts.init(document.getElementById('chart-radar'), null, { renderer: 'canvas' });
+    }
+
+    function renderResults(results) {
+      const mbtiList = Object.keys(results);
+      const sorted = [...mbtiList].sort((a, b) => results[b].winRate - results[a].winRate);
+      const rates = mbtiList.map(m => results[m].winRate);
+      const spread = Math.max(...rates) - Math.min(...rates);
+      const avgWinRate = rates.reduce((s, v) => s + v, 0) / rates.length;
+      const grade = spread <= 0.05 ? '均衡' : spread <= 0.10 ? '轻微偏差' : '不平衡';
+      const gradeColor = spread <= 0.05 ? '#34D399' : spread <= 0.10 ? '#FBBF24' : '#F87171';
+
+      // 统计卡片
+      $('#stats').innerHTML = `
+        <div class="stat-card"><div class="s-value" style="color:#22D3EE;">${mbtiList.length}</div><div class="s-label">人格类型</div></div>
+        <div class="stat-card"><div class="s-value" style="color:#FBBF24;">${(avgWinRate * 100).toFixed(1)}%</div><div class="s-label">平均胜率</div></div>
+        <div class="stat-card"><div class="s-value" style="color:${gradeColor};">${(spread * 100).toFixed(1)}%</div><div class="s-label">胜率极差</div></div>
+        <div class="stat-card"><div class="s-value" style="color:#A78BFA;">${grade}</div><div class="s-label">平衡性评级</div></div>
+      `;
+
+      // 柱状图
+      chartBar.setOption({
+        backgroundColor: 'transparent',
+        tooltip: {
+          trigger: 'axis', axisPointer: { type: 'shadow' },
+          formatter: function(params) {
+            const m = params[0].name;
+            const r = results[m];
+            const p = MBTI_CHESS_PERSONA[m];
+            return `<strong>${m}</strong> · ${p.chessName}<br/>
+              胜率: ${(r.winRate * 100).toFixed(1)}%<br/>
+              攻击性: ${(r.aggression * 100).toFixed(0)}% · 抗倾斜: ${(r.tiltResist * 100).toFixed(0)}%<br/>
+              <span style="font-size:10px;color:#8B8FB8;">${p.signature}</span>`;
+          },
+        },
+        grid: { left: '3%', right: '4%', bottom: '15%', top: '10%', containLabel: true },
+        xAxis: {
+          type: 'category', data: sorted,
+          axisLabel: { color: '#8B8FB8', fontSize: 10, rotate: 45 },
+          axisLine: { lineStyle: { color: 'rgba(167,139,250,0.2)' } },
+        },
+        yAxis: {
+          type: 'value', max: 1,
+          axisLabel: { color: '#8B8FB8', fontSize: 10, formatter: v => (v * 100).toFixed(0) + '%' },
+          splitLine: { lineStyle: { color: 'rgba(167,139,250,0.08)' } },
+        },
+        series: [{
+          type: 'bar', data: sorted.map(m => {
+            const temp = mbtiToTemp(m);
+            return { value: results[m].winRate, itemStyle: { color: TEMPERAMENT_COLORS[temp], borderRadius: [3, 3, 0, 0] } };
+          }),
+          barWidth: '60%',
+          markLine: { silent: true, data: [{ yAxis: 0.5, lineStyle: { color: 'rgba(255,255,255,0.15)', type: 'dashed' } }], label: { show: false } },
+        }],
+      });
+
+      // 雷达图
+      const tempKeys = ['NF', 'NT', 'SJ', 'SP'];
+      const groupData = tempKeys.map(t => {
+        const members = mbtiList.filter(m => mbtiToTemp(m) === t);
+        const avgWin = members.reduce((s, m) => s + results[m].winRate, 0) / members.length;
+        const avgFold = members.reduce((s, m) => s + results[m].foldRate, 0) / members.length;
+        const avgRaise = members.reduce((s, m) => s + results[m].raiseRate, 0) / members.length;
+        const avgBluff = members.reduce((s, m) => s + results[m].bluffFreq, 0) / members.length;
+        const avgAgg = members.reduce((s, m) => s + results[m].aggression, 0) / members.length;
+        const avgTilt = members.reduce((s, m) => s + results[m].tiltResist, 0) / members.length;
+        return { name: TEMPERAMENT_NAMES[t], winRate: avgWin, foldRate: avgFold, raiseRate: avgRaise, bluffFreq: avgBluff, aggression: avgAgg, tiltResist: avgTilt, color: TEMPERAMENT_COLORS[t] };
+      });
+
+      chartRadar.setOption({
+        backgroundColor: 'transparent',
+        tooltip: {},
+        legend: { data: groupData.map(g => g.name), textStyle: { color: '#8B8FB8', fontSize: 10 }, bottom: 0 },
+        radar: {
+          indicator: [
+            { name: '胜率', max: 1 },
+            { name: '弃牌率', max: 1 },
+            { name: '加注率', max: 1 },
+            { name: '诈唬率', max: 1 },
+            { name: '攻击性', max: 1 },
+            { name: '抗倾斜', max: 1 },
+          ],
+          axisName: { color: '#8B8FB8', fontSize: 9 },
+          splitArea: { areaStyle: { color: ['rgba(167,139,250,0.02)', 'rgba(167,139,250,0.04)'] } },
+          center: ['50%', '55%'],
+          radius: '65%',
+        },
+        series: [{
+          type: 'radar',
+          data: groupData.map(g => ({
+            name: g.name,
+            value: [g.winRate, g.foldRate, g.raiseRate, g.bluffFreq, g.aggression, g.tiltResist],
+            itemStyle: { color: g.color },
+            lineStyle: { color: g.color },
+            areaStyle: { color: g.color, opacity: 0.1 },
+          })),
+        }],
+      });
+
+      // 表格
+      $('#table').innerHTML = `
+        <table>
+          <thead><tr>
+            <th>MBTI</th><th>棋风</th><th>棋风组</th><th>棋子</th><th>局数</th><th>胜</th><th>负</th><th>胜率</th><th>弃牌率</th><th>加注率</th><th>诈唬率</th><th>攻击性</th><th>抗倾斜</th>
+          </tr></thead>
+          <tbody>${sorted.map(m => {
+            const r = results[m];
+            const temp = mbtiToTemp(m);
+            const color = TEMPERAMENT_COLORS[temp];
+            const p = MBTI_CHESS_PERSONA[m];
+            const wrCls = r.winRate > 0.55 ? 'td-high' : r.winRate > 0.45 ? 'td-mid' : 'td-low';
+            return `<tr>
+              <td style="color:${color};font-weight:600;">${m}</td>
+              <td style="font-size:10px;color:var(--text-secondary);">${p.chessName}</td>
+              <td class="td-group">${TEMPERAMENT_NAMES[temp]}</td>
+              <td style="font-size:10px;">${p.chessPiece}</td>
+              <td>${r.total}</td><td style="color:#34D399;">${r.wins}</td><td style="color:#F87171;">${r.losses}</td>
+              <td class="${wrCls}">${(r.winRate * 100).toFixed(1)}%</td>
+              <td>${(r.foldRate * 100).toFixed(0)}%</td><td>${(r.raiseRate * 100).toFixed(0)}%</td>
+              <td>${(r.bluffFreq * 100).toFixed(0)}%</td><td>${(r.aggression * 100).toFixed(0)}%</td>
+              <td>${(r.tiltResist * 100).toFixed(0)}%</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      `;
+
+      // 场景分析
+      const scenarioNames = { blue_ocean: '🔵 蓝海', red_ocean: '🔴 红海', balanced: '⚪ 均衡' };
+      const scenarioDescs = { blue_ocean: '高增长 · 低竞争 · 合作博弈', red_ocean: '高竞争 · 低增长 · 零和博弈', balanced: '均衡市场 · 中性博弈' };
+      const mbtiList2 = Object.keys(results);
+      const scenarioAgg = { blue_ocean: { wins: 0, total: 0 }, red_ocean: { wins: 0, total: 0 }, balanced: { wins: 0, total: 0 } };
+      mbtiList2.forEach(m => {
+        Object.keys(scenarioAgg).forEach(s => {
+          scenarioAgg[s].wins += results[m].scenarioWins[s] || 0;
+          scenarioAgg[s].total += results[m].scenarioTotal[s] || 0;
+        });
+      });
+
+      $('#scenarios').innerHTML = Object.keys(scenarioNames).map(s => {
+        const rate = scenarioAgg[s].total > 0 ? scenarioAgg[s].wins / scenarioAgg[s].total : 0;
+        return `<div class="scenario-card">
+          <div class="sc-emoji">${s === 'blue_ocean' ? '🌊' : s === 'red_ocean' ? '🔥' : '⚖️'}</div>
+          <div class="sc-name" style="color:${s === 'blue_ocean' ? '#34D399' : s === 'red_ocean' ? '#F87171' : '#FBBF24'}">${scenarioNames[s]}</div>
+          <div class="sc-desc">${scenarioDescs[s]}</div>
+          <div class="sc-rate" style="color:${s === 'blue_ocean' ? '#34D399' : s === 'red_ocean' ? '#F87171' : '#FBBF24'}">${(rate * 100).toFixed(1)}%</div>
+          <div style="font-size:10px;color:var(--text-muted);">${scenarioAgg[s].total} 局</div>
+        </div>`;
+      }).join('');
+
+      // 纳什均衡
+      const nash = nashAnalysis(results);
+      const sortedNash = [...nash].sort((a, b) => b.equilibriumScore - a.equilibriumScore);
+      $('#nash').innerHTML = `
+        <table>
+          <thead><tr>
+            <th>排名</th><th>MBTI</th><th>棋风组</th><th>胜率</th><th>均衡评分</th><th>策略推荐</th><th>市场格局</th><th>纳什稳定性</th><th>竞争强度</th><th>增长潜力</th>
+          </tr></thead>
+          <tbody>${sortedNash.map((n, i) => `
+            <tr>
+              <td style="color:${i < 3 ? '#FBBF24' : 'var(--text-muted)'};font-weight:600;">#${i + 1}</td>
+              <td style="color:${TEMPERAMENT_COLORS[n.temp]};font-weight:600;">${n.mbti}</td>
+              <td class="td-group">${TEMPERAMENT_NAMES[n.temp]}</td>
+              <td class="${n.winRate > 0.55 ? 'td-high' : n.winRate > 0.45 ? 'td-mid' : 'td-low'}">${(n.winRate * 100).toFixed(1)}%</td>
+              <td class="td-high">${(n.equilibriumScore * 100).toFixed(0)}%</td>
+              <td style="color:#22D3EE;">${(n.strategyRecommendation * 100).toFixed(0)}%</td>
+              <td class="${n.marketRegime === 'BLUE_OCEAN' ? 'td-blue' : 'td-red'}">${n.marketRegime === 'BLUE_OCEAN' ? '蓝海' : '红海'}</td>
+              <td style="color:var(--text-secondary);">${(n.nashStability * 100).toFixed(0)}%</td>
+              <td style="color:var(--text-muted);">${(n.competitionIntensity * 100).toFixed(0)}%</td>
+              <td style="color:var(--text-muted);">${(n.marketGrowth * 100).toFixed(0)}%</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      `;
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // 初始化
+    // ═════════════════════════════════════════════════════════
+    let currentRounds = 200;
+
+    function runAndRender(rounds) {
+      currentRounds = rounds;
+      const results = runSimulation(rounds);
+      renderResults(results);
+      $('#rounds-info').textContent = `模拟 ${rounds} 局`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initCharts();
+      renderTemperamentCards();
+      runAndRender(200);
+    });
+
+    $('#btn-run').addEventListener('click', () => runAndRender(200));
+    $('#btn-run-1000').addEventListener('click', () => runAndRender(1000));
+
+    window.addEventListener('resize', () => {
+      chartBar && chartBar.resize();
+      chartRadar && chartRadar.resize();
+    });
+  </script>
+</body>
+</html>
