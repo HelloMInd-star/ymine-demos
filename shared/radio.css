@@ -1,0 +1,146 @@
+/* ═══════════════════════════════════════════════════════════
+   Y.MINE Radio · 深夜电台悬浮唱片
+   默认静音 · 主动开启 · 低音量循环
+   ═══════════════════════════════════════════════════════════ */
+
+.ym-radio {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.ym-radio-disc {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  background:
+    radial-gradient(circle at center,
+      #FBBF24 0%, #FBBF24 14%,
+      #1a1a2e 15%, #1a1a2e 100%);
+  box-shadow:
+    0 0 0 2px rgba(167, 139, 250, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 黑胶纹路 */
+.ym-radio-disc::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle at center,
+    transparent 0px,
+    transparent 2px,
+    rgba(167, 139, 250, 0.18) 3px,
+    transparent 4px
+  );
+  pointer-events: none;
+}
+
+.ym-radio-disc:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 0 0 2px rgba(167, 139, 250, 0.55),
+    0 0 24px rgba(167, 139, 250, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* 播放中：旋转 */
+.ym-radio.playing .ym-radio-disc {
+  animation: ymRadioSpin 4s linear infinite;
+  box-shadow:
+    0 0 0 2px rgba(251, 191, 36, 0.6),
+    0 0 28px rgba(251, 191, 36, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes ymRadioSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* 播放中：波纹扩散 */
+.ym-radio.playing .ym-radio-disc::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  animation: ymRadioRipple 2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ymRadioRipple {
+  0%   { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* 中心状态点 */
+.ym-radio-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0a0a18;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 标注小字 */
+.ym-radio-label {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: rgba(232, 230, 255, 0.45);
+  background: rgba(10, 10, 24, 0.75);
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
+  user-select: none;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.ym-radio:hover .ym-radio-label {
+  color: rgba(232, 230, 255, 0.85);
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.ym-radio.playing .ym-radio-label {
+  color: #FBBF24;
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.ym-radio-label a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(167, 139, 250, 0.5);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .ym-radio { right: 16px; bottom: 16px; }
+  .ym-radio-disc { width: 48px; height: 48px; }
+  .ym-radio-label { font-size: 9px; }
+}
+
+/* 打印时隐藏 */
+@media print {
+  .ym-radio { display: none; }
+}

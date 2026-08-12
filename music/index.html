@@ -40,6 +40,31 @@
 
     /* 结果区 */
     .result-section { margin-bottom: 20px; }
+
+    /* ── 人格主题曲卡片 ── */
+    .theme-card { display: flex; align-items: center; gap: 20px; padding: 22px 24px; }
+    .theme-card.locked { opacity: 0.75; border: 1px dashed rgba(167, 139, 250, 0.35); }
+    .theme-lock-icon { font-size: 30px; color: rgba(167, 139, 250, 0.5); border: 1px dashed rgba(167,139,250,.4); border-radius: 50%; width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .theme-lock-title { font-family: var(--font-display); font-size: 15px; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 6px; }
+    .theme-lock-hint { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+    .theme-lock-clue { color: rgba(251, 191, 36, 0.75); font-size: 11px; letter-spacing: 0.05em; }
+    .theme-card.unlocked { border: 1px solid rgba(251, 191, 36, 0.55); box-shadow: 0 0 24px rgba(251, 191, 36, 0.12), inset 0 0 30px rgba(251, 191, 36, 0.04); animation: themeGlow 3s ease-in-out infinite; }
+    @keyframes themeGlow { 0%,100% { box-shadow: 0 0 24px rgba(251,191,36,.10), inset 0 0 30px rgba(251,191,36,.03);} 50% { box-shadow: 0 0 36px rgba(251,191,36,.22), inset 0 0 30px rgba(251,191,36,.06);} }
+    .theme-info { flex: 1; min-width: 0; }
+    .theme-badge { display: inline-block; font-size: 10px; letter-spacing: 0.12em; color: #FBBF24; border: 1px solid rgba(251,191,36,.45); padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+    .theme-title { font-family: var(--font-display); font-size: 24px; letter-spacing: 0.04em; background: linear-gradient(90deg, #FBBF24, #A78BFA); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+    .theme-meta { font-size: 12px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 14px; }
+    .theme-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .theme-playlist-link { font-size: 12px; color: #22D3EE; text-decoration: none; border-bottom: 1px dotted rgba(34,211,238,.5); }
+    .theme-playlist-link:hover { color: #A78BFA; border-bottom-color: #A78BFA; }
+    .theme-qr { text-align: center; flex-shrink: 0; }
+    .theme-qr img { width: 96px; height: 96px; border-radius: 8px; border: 1px solid rgba(167,139,250,.3); display: block; }
+    .theme-qr-caption { font-size: 10px; color: var(--text-secondary); margin-top: 6px; letter-spacing: 0.05em; }
+    @media (max-width: 640px) {
+      .theme-card.unlocked { flex-direction: column; text-align: center; }
+      .theme-actions { justify-content: center; }
+      .theme-qr img { width: 110px; height: 110px; }
+    }
     .section-title {
       font-size: 12px; color: var(--cyan); text-transform: uppercase;
       letter-spacing: 0.08em; margin-bottom: 12px;
@@ -123,6 +148,7 @@
     }
     .empty-state .big-emoji { font-size: 48px; margin-bottom: 12px; display: block; }
   </style>
+  <link rel="stylesheet" href="../shared/radio.css">
 </head>
 <body>
   <div class="container">
@@ -581,8 +607,90 @@
             </div>
           </div>
         </div>
+
+        ${themeCardHTML(vec)}
       `;
     }
+
+    // ═════════════════════════════════════════════════════════
+    // 人格主题曲 · ISFJ 区间解锁
+    // 向量进入 ISFJ 邻域 → 解锁《Sweater Weather》
+    // ═════════════════════════════════════════════════════════
+    const THEME_CENTER = { TOL: 0.65, SPD: 0.35, INF: 0.45, ENT: 0.25, LEAD: 0.35, VIS: 0.40 };
+    const THEME_RADIUS = 0.20;
+    let themeAudio = null;
+
+    function themeDistance(vec) {
+      let sum = 0;
+      for (const k of Object.keys(THEME_CENTER)) {
+        const d = (vec[k] || 0) - THEME_CENTER[k];
+        sum += d * d;
+      }
+      return Math.sqrt(sum);
+    }
+
+    function themeCardHTML(vec) {
+      const unlocked = themeDistance(vec) <= THEME_RADIUS;
+      if (!unlocked) {
+        return `
+        <!-- 人格主题曲 · 未解锁 -->
+        <div class="result-section">
+          <div class="section-title">人格主题曲</div>
+          <div class="theme-card glass locked">
+            <div class="theme-lock-icon">♪</div>
+            <div class="theme-lock-text">
+              <div class="theme-lock-title">主题曲未解锁</div>
+              <div class="theme-lock-hint">把六维向量调到「守卫者 ISFJ」区间，解锁第一首人格主题曲<br>
+              <span class="theme-lock-clue">线索：高包容 · 慢节奏 · 温和主导 · 内向能量</span></div>
+            </div>
+          </div>
+        </div>`;
+      }
+      return `
+        <!-- 人格主题曲 · 已解锁 -->
+        <div class="result-section">
+          <div class="section-title">人格主题曲 · 已解锁</div>
+          <div class="theme-card glass unlocked">
+            <div class="theme-info">
+              <div class="theme-badge">ISFJ 守卫者 · 主题曲 No.01</div>
+              <div class="theme-title">Sweater Weather</div>
+              <div class="theme-meta">Y.MINE 原创 AI 音乐 · 3'26'' · 毛衣与冷天气的矛盾体，正如守护者温柔而坚韧</div>
+              <div class="theme-actions">
+                <button class="btn btn-primary" id="btn-theme-play" onclick="toggleTheme()">▶ 播放主题曲</button>
+                <a class="theme-playlist-link" href="https://163cn.tv/bcXc6I9W" target="_blank" rel="noopener">网易云歌单《first cup》↗</a>
+              </div>
+            </div>
+            <div class="theme-qr">
+              <img src="../assets/radio/netease-playlist-qr.png" alt="网易云歌单二维码">
+              <div class="theme-qr-caption">扫码听完整版</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    window.toggleTheme = function () {
+      const btn = $('#btn-theme-play');
+      if (themeAudio && !themeAudio.paused) {
+        themeAudio.pause();
+        if (btn) btn.textContent = '▶ 播放主题曲';
+        return;
+      }
+      // 暂停氛围合成器，避免混音
+      if (isPlaying) { stopAmbient(); updatePlayButton(); }
+      if (!themeAudio) {
+        themeAudio = new Audio('../assets/radio/sweater-weather.mp3');
+        themeAudio.volume = 0.8;
+        themeAudio.addEventListener('ended', () => {
+          const b = $('#btn-theme-play');
+          if (b) b.textContent = '▶ 播放主题曲';
+        });
+      }
+      themeAudio.play().then(() => {
+        if (btn) btn.textContent = '⏸ 暂停';
+      }).catch(() => {
+        if (btn) btn.textContent = '▶ 播放主题曲';
+      });
+    };
 
     window.togglePlay = function() {
       if (isPlaying) {
@@ -601,5 +709,6 @@
     // 初始加载
     renderResults(currentVector);
   </script>
+  <script src="../shared/radio.js"></script>
 </body>
 </html>
