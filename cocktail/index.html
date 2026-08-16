@@ -18,18 +18,56 @@
     .panel-title { font-size: 13px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
     .panel-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--purple), transparent); }
     .slider-group { margin-bottom: 14px; }
-    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
     .slider-label { font-size: 12px; font-weight: 600; }
     .slider-label small { font-size: 10px; opacity: 0.5; font-weight: 400; }
-    .slider-value { font-size: 12px; font-family: var(--font-mono); }
+    .slider-value { font-size: 12px; font-family: var(--font-mono); min-width: 36px; text-align: right; }
+    /* ===== 新增：双向标签 ===== */
+    .slider-extremes {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 1px;
+      padding: 0 2px;
+      letter-spacing: 0.05em;
+    }
+    .slider-extremes .left { text-align: left; }
+    .slider-extremes .right { text-align: right; }
+
     .slider-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
     .btn-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
 
     .time-slot-bar { padding: 14px 16px; border-radius: var(--radius-md); background: rgba(167,139,250,0.06); border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
     .time-slot-bar .slot-label { font-size: 13px; color: var(--cyan); font-weight: 600; }
     .time-slot-bar .slot-poem { font-size: 11px; color: var(--text-secondary); font-style: italic; margin-top: 4px; }
+    /* ===== 新增：时段影响提示 ===== */
+    .time-impact {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(167,139,250,0.06);
+      display: inline-block;
+    }
+    .time-impact strong { color: var(--gold); font-weight: 500; }
 
     .results-area { }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .results-header .count {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .results-header .count strong { color: var(--cyan); }
+
     .cocktail-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     @media (max-width: 1024px) { .cocktail-cards { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 640px) { .cocktail-cards { grid-template-columns: 1fr; } }
@@ -46,15 +84,64 @@
     .cocktail-card .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
     .cocktail-card .story { font-size: 10px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px; border-left: 2px solid var(--border); padding-left: 8px; }
     .cocktail-card .match { font-size: 10px; color: var(--gold); font-family: var(--font-mono); margin-bottom: 10px; }
-    .cocktail-card .mood-tags { display: flex; gap: 4px; margin-bottom: 8px; }
+    /* ===== 新增：匹配理由标签 ===== */
+    .match-reasons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .match-reason {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.15);
+      color: var(--cyan);
+    }
+    .cocktail-card .mood-tags { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
     .cocktail-card .mood-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(167,139,250,0.1); color: var(--purple); }
-    .molecule-view { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-    .molecule-view.active { display: block; }
+
+    /* ===== 优化：平滑展开 ===== */
+    .expandable-section {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease;
+      margin-top: 0;
+    }
+    .expandable-section.active {
+      max-height: 600px;
+      opacity: 1;
+      margin-top: 10px;
+    }
+    .expandable-section .inner {
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .expandable-toggle {
+      font-size: 10px;
+      padding: 4px 12px;
+      border-radius: 12px;
+      background: rgba(167,139,250,0.08);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .expandable-toggle:hover {
+      border-color: var(--purple);
+      color: var(--text-primary);
+    }
+    .expandable-toggle.active {
+      border-color: var(--purple);
+      color: var(--purple);
+      background: rgba(167,139,250,0.12);
+    }
+
     .molecule-item { display: flex; align-items: center; justify-content: space-between; font-size: 10px; padding: 3px 0; color: var(--text-secondary); }
     .molecule-bar { width: 60px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.06); overflow: hidden; }
     .molecule-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
-    .steps-view { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-    .steps-view.active { display: block; }
     .step-item { font-size: 10px; color: var(--text-secondary); padding: 3px 0; line-height: 1.5; }
     .step-item .step-num { color: var(--purple); font-weight: 600; margin-right: 4px; }
 
@@ -62,6 +149,17 @@
     .empty-state .big-emoji { font-size: 48px; margin-bottom: 12px; display: block; }
 
     .aura-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+
+    /* ===== 预设按钮选中态 ===== */
+    .preset-btn {
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .preset-btn.active {
+      border-color: var(--cyan) !important;
+      background: rgba(34,211,238,0.12) !important;
+      color: var(--cyan) !important;
+    }
   </style>
   <link rel="stylesheet" href="../shared/radio.css">
 </head>
@@ -90,7 +188,15 @@
       </div>
 
       <div class="results-area">
-        <div class="time-slot-bar" id="time-slot"></div>
+        <div class="time-slot-bar" id="time-slot">
+          <div class="slot-label" id="slot-label"></div>
+          <div class="slot-poem" id="slot-poem"></div>
+          <div class="time-impact" id="time-impact"></div>
+        </div>
+        <div class="results-header">
+          <span class="count">从 <strong id="library-count">20</strong> 款酒中精选 Top 3</span>
+          <span style="font-size:10px;color:var(--text-muted);">⚡ 拖拽滑块即更新</span>
+        </div>
         <div id="results"></div>
       </div>
     </div>
@@ -101,7 +207,6 @@
   <script>
     // ═════════════════════════════════════════════════════════
     // 酒库 · 来自主项目 cocktails.ts · 20 款精选
-    // flavorProfile 归一化至 0-1（原 0-9 除以 9）
     // ═════════════════════════════════════════════════════════
     const BASE_SPIRIT_NAMES = { whisky: '威士忌', gin: '金酒', rum: '朗姆酒', vodka: '伏特加', tequila: '龙舌兰', liqueur: '利口酒' };
     const GLASS_NAMES = { rocks: '古典杯', coupe: '浅碟杯', martini: '马天尼杯', highball: '高球杯', mug: '玛格丽特杯', tiki: '提基杯', flute: '笛形杯' };
@@ -134,81 +239,228 @@
     ];
 
     // ═════════════════════════════════════════════════════════
+    // 维度双向标签配置
+    // ═════════════════════════════════════════════════════════
+    const DIM_LABELS = {
+      TOL: { left: '清爽·简单', right: '复杂·烟熏' },
+      SPD: { left: '温和·低度', right: '强烈·高度' },
+      INF: { left: '内敛·草本', right: '张扬·果香' },
+      ENT: { left: '轻盈·淡', right: '浓烈·刺激' },
+      LEAD: { left: '随性·自然', right: '经典·结构' },
+      VIS: { left: '朴素·实用', right: '华丽·装饰' }
+    };
+
+    // ═════════════════════════════════════════════════════════
     // 初始化
     // ═════════════════════════════════════════════════════════
     const DEFAULT_VEC = { TOL: 0.35, SPD: 0.55, INF: 0.85, ENT: 0.25, LEAD: 0.80, VIS: 0.60 };
     let currentVector = { ...DEFAULT_VEC };
+    let activePreset = null;
 
-    const sliderValues = createVectorSliders($('#sliders'), (vals) => { currentVector = { ...vals }; }, DEFAULT_VEC);
+    // ---- 防抖工具 ----
+    function debounce(fn, delay = 300) {
+      let timer = null;
+      return (...args) => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => { fn(...args); timer = null; }, delay);
+      };
+    }
 
+    // ---- 滑块渲染（带双向标签） ----
+    const sliderValues = createVectorSliders($('#sliders'), (vals) => {
+      currentVector = { ...vals };
+      // 清除预设高亮
+      document.querySelectorAll('.preset-btn').forEach(el => el.classList.remove('active'));
+      activePreset = null;
+      // 防抖推荐
+      debouncedRecommend();
+    }, DEFAULT_VEC);
+
+    // 在滑块下方插入双向标签
+    document.querySelectorAll('.slider-group').forEach(group => {
+      const dim = group.querySelector('input')?.dataset.dim;
+      if (dim && DIM_LABELS[dim]) {
+        const lbl = DIM_LABELS[dim];
+        const div = document.createElement('div');
+        div.className = 'slider-extremes';
+        div.innerHTML = `<span class="left">${lbl.left}</span><span class="right">${lbl.right}</span>`;
+        group.appendChild(div);
+      }
+    });
+
+    // ---- 预设按钮 ----
     const presetsEl = $('#presets');
-    getPresetTypes().forEach(type => {
-      const btn = document.createElement('button'); btn.className = 'tag'; btn.textContent = type; btn.style.cursor = 'pointer';
+    const presetNames = getPresetTypes ? getPresetTypes() : ['INTJ','ENFP','ISTJ','ESFP','INFJ','ENTP'];
+    presetNames.forEach(type => {
+      const btn = document.createElement('button');
+      btn.className = 'tag preset-btn';
+      btn.textContent = type;
+      btn.dataset.preset = type;
       btn.addEventListener('click', () => {
-        const vec = presetVector(type); currentVector = { ...vec };
+        const vec = presetVector ? presetVector(type) : randomVector();
+        currentVector = { ...vec };
         DIMENSIONS.forEach(d => {
           const input = document.querySelector(`input[data-dim="${d.key}"]`);
           if (input) { input.value = vec[d.key]; const valEl = input.parentElement.querySelector('.slider-value'); if (valEl) valEl.textContent = fmt(vec[d.key]); }
         });
+        // 高亮当前预设
+        document.querySelectorAll('.preset-btn').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        activePreset = type;
+        debouncedRecommend();
       });
       presetsEl.appendChild(btn);
     });
 
+    // ---- 按钮事件 ----
     $('#btn-random').addEventListener('click', () => {
-      const vec = randomVector(); currentVector = { ...vec };
+      const vec = randomVector();
+      currentVector = { ...vec };
       DIMENSIONS.forEach(d => {
         const input = document.querySelector(`input[data-dim="${d.key}"]`);
         if (input) { input.value = vec[d.key]; const valEl = input.parentElement.querySelector('.slider-value'); if (valEl) valEl.textContent = fmt(vec[d.key]); }
       });
+      document.querySelectorAll('.preset-btn').forEach(el => el.classList.remove('active'));
+      activePreset = null;
+      debouncedRecommend();
     });
 
-    $('#btn-recommend').addEventListener('click', () => recommend());
+    $('#btn-recommend').addEventListener('click', () => {
+      recommend();
+    });
+
+    // ---- 时段渲染 ----
     renderTimeSlot();
 
     function renderTimeSlot() {
       const slot = getCurrentTimeSlot();
-      $('#time-slot').innerHTML = `<div class="slot-label">${slot.label} · ${slot.mood}</div><div class="slot-poem">"${slot.poem}"</div>`;
+      const slotLabel = document.getElementById('slot-label');
+      const slotPoem = document.getElementById('slot-poem');
+      const slotImpact = document.getElementById('time-impact');
+      if (slotLabel) slotLabel.textContent = `${slot.label} · ${slot.mood}`;
+      if (slotPoem) slotPoem.textContent = `"${slot.poem}"`;
+      if (slotImpact) {
+        const impacts = {
+          midnight: '🌙 午夜时段 → 倾向推荐 复杂、经典 酒款',
+          dusk: '🌅 黄昏时段 → 倾向推荐 浪漫、果香 酒款',
+          dawn: '🌄 黎明时段 → 倾向推荐 清爽、草本 酒款'
+        };
+        slotImpact.innerHTML = impacts[slot.slot] || '🌙 时段加成已生效';
+      }
     }
 
     // ═════════════════════════════════════════════════════════
-    // 推荐逻辑：余弦相似度 + 原型亲和加成
+    // 推荐逻辑（余弦相似度 + 时段加成）
     // ═════════════════════════════════════════════════════════
+    function vectorToFlavor(vec) {
+      // 将六维向量映射到八维 flavor（简化映射）
+      return {
+        sweet: vec.INF * 0.7 + vec.SPD * 0.3,
+        sour: (1 - vec.LEAD) * 0.6 + vec.SPD * 0.4,
+        bitter: vec.TOL * 0.8 + vec.ENT * 0.2,
+        strong: vec.ENT * 0.8 + vec.TOL * 0.2,
+        smoky: vec.TOL * 0.9,
+        fruity: vec.INF * 0.9,
+        herbal: (1 - vec.INF) * 0.7 + vec.LEAD * 0.3,
+        creamy: (1 - vec.ENT) * 0.5 + vec.VIS * 0.5
+      };
+    }
+
+    function cosineSimilarity(a, b) {
+      const keys = Object.keys(a);
+      let dot = 0, normA = 0, normB = 0;
+      for (const k of keys) {
+        dot += a[k] * b[k];
+        normA += a[k] * a[k];
+        normB += b[k] * b[k];
+      }
+      if (normA === 0 || normB === 0) return 0;
+      return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    // ===== 新增：生成匹配理由 =====
+    function getMatchReasons(cocktail, userFlavor, slot) {
+      const reasons = [];
+      const flavorKeys = ['sweet','sour','bitter','strong','smoky','fruity','herbal','creamy'];
+      const flavorLabels = {
+        sweet: '🍬 甜度',
+        sour: '🍋 酸度',
+        bitter: '🔥 苦味',
+        strong: '💪 酒体',
+        smoky: '🌫️ 烟熏',
+        fruity: '🍊 果香',
+        herbal: '🌿 草本',
+        creamy: '🥛 醇厚'
+      };
+      // 找出最匹配的 2-3 个维度
+      const diffs = flavorKeys.map(k => ({
+        key: k,
+        diff: Math.abs(userFlavor[k] - cocktail.flavor[k]),
+        weight: Math.max(userFlavor[k], cocktail.flavor[k]) // 高值维度优先
+      }));
+      diffs.sort((a, b) => (a.diff * 0.7 + (1 - a.weight) * 0.3) - (b.diff * 0.7 + (1 - b.weight) * 0.3));
+      const top = diffs.slice(0, 3);
+      for (const d of top) {
+        if (d.diff < 0.35) {
+          const label = flavorLabels[d.key] || d.key;
+          const userVal = userFlavor[d.key];
+          const cocktailVal = cocktail.flavor[d.key];
+          const dir = cocktailVal > userVal ? '偏高' : '偏低';
+          reasons.push(`${label} ${dir}（${(cocktailVal * 100).toFixed(0)}%）`);
+        }
+      }
+      // 如果理由太少，补一个时段或类别
+      if (reasons.length < 2) {
+        if (slot === 'midnight' && cocktail.difficulty >= 3) reasons.push('🌙 午夜·复杂酒款加分');
+        if (slot === 'dusk' && cocktail.moods.includes('浪漫')) reasons.push('🌅 黄昏·浪漫酒款加分');
+        if (slot === 'dawn' && cocktail.category === '经典') reasons.push('🌄 黎明·经典酒款加分');
+        if (reasons.length < 2 && cocktail.moods.length) reasons.push(`🎭 气质匹配 · ${cocktail.moods[0]}`);
+      }
+      return reasons.slice(0, 4);
+    }
+
+    // ---- 防抖推荐包装 ----
+    const debouncedRecommend = debounce(() => recommend(), 280);
+
     function recommend() {
       const vec = currentVector;
       const userFlavor = vectorToFlavor(vec);
+      const slot = getCurrentTimeSlot();
 
       const scored = LIQUOR_LIBRARY.map(cocktail => {
         const flavorScore = cosineSimilarity(userFlavor, cocktail.flavor);
-        // 时段加权：不同时段微调偏好
-        const slot = getCurrentTimeSlot();
         let timeBonus = 0;
         if (slot.slot === 'midnight' && cocktail.difficulty >= 3) timeBonus = 0.05;
         if (slot.slot === 'dawn' && cocktail.category === '经典') timeBonus = 0.03;
         if (slot.slot === 'dusk' && cocktail.moods.includes('浪漫')) timeBonus = 0.04;
-        const score = flavorScore + timeBonus;
-        return { ...cocktail, score: clamp(score, 0, 1), flavorScore };
+        const score = clamp(flavorScore + timeBonus, 0, 1);
+        return { ...cocktail, score, flavorScore };
       });
 
       scored.sort((a, b) => b.score - a.score);
       const top3 = scored.slice(0, 3);
-      renderResults(top3);
+      renderResults(top3, userFlavor, slot);
     }
 
     // ═════════════════════════════════════════════════════════
-    // 结果渲染
+    // 结果渲染（含匹配理由 + 平滑展开）
     // ═════════════════════════════════════════════════════════
-    function renderResults(cocktails) {
-      if (!cocktails.length) {
-        $('#results').innerHTML = '<div class="empty-state"><span class="big-emoji">🍸</span>调整向量后点击「推荐酒款」</div>';
+    function renderResults(cocktails, userFlavor, slot) {
+      const resultsEl = $('#results');
+      document.getElementById('library-count').textContent = LIQUOR_LIBRARY.length;
+
+      if (!cocktails || !cocktails.length) {
+        resultsEl.innerHTML = '<div class="empty-state"><span class="big-emoji">🍸</span>调整向量后点击「推荐酒款」</div>';
         return;
       }
 
-      $('#results').innerHTML = `
-        <div style="margin-bottom:12px;font-size:12px;color:var(--text-secondary);">
-          基于六维向量推荐 · 从 <span style="color:var(--cyan);">${LIQUOR_LIBRARY.length}</span> 款酒中精选 Top 3
-        </div>
+      resultsEl.innerHTML = `
         <div class="cocktail-cards">
-          ${cocktails.map((c, i) => `
+          ${cocktails.map((c, i) => {
+            const reasons = userFlavor ? getMatchReasons(c, userFlavor, slot) : [];
+            return `
             <div class="cocktail-card" style="animation-delay:${i * 0.1}s;border-left:3px solid ${c.auraColor};">
               <div class="rank">#${i + 1}</div>
               <div class="name">${c.name}</div>
@@ -219,39 +471,45 @@
               <div class="mood-tags">${c.moods.map(m => `<span class="mood-tag">${m}</span>`).join('')}</div>
               <div class="story">${c.story}</div>
               <div class="match">匹配度 ${(c.score * 100).toFixed(0)}% · 风味相似 ${(c.flavorScore * 100).toFixed(0)}%</div>
-              <div style="display:flex;gap:6px;">
-                <button class="btn" style="font-size:10px;flex:1;" onclick="toggleMolecule('${c.id}', this)">🔬 分子视图</button>
-                <button class="btn" style="font-size:10px;flex:1;" onclick="toggleSteps('${c.id}', this)">📋 调酒步骤</button>
+              ${reasons.length ? `<div class="match-reasons">${reasons.map(r => `<span class="match-reason">${r}</span>`).join('')}</div>` : ''}
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="expandable-toggle" data-target="mol-${c.id}" onclick="toggleExpand('mol-${c.id}', this)">🔬 分子视图</button>
+                <button class="expandable-toggle" data-target="steps-${c.id}" onclick="toggleExpand('steps-${c.id}', this)">📋 调酒步骤</button>
               </div>
-              <div class="molecule-view" id="mol-${c.id}">
-                ${c.ingredients.map((ing, j) => {
-                  const colors = ['#A78BFA','#22D3EE','#FBBF24','#F87171','#34D399','#F472B6'];
-                  const pct = Math.round(100 / c.ingredients.length);
-                  return `<div class="molecule-item"><span>${ing.name}</span><div class="molecule-bar"><div class="molecule-fill" style="width:${pct}%;background:${colors[j % colors.length]};"></div></div><span style="color:${colors[j % colors.length]}">${ing.amt}</span></div>`;
-                }).join('')}
+              <div class="expandable-section" id="mol-${c.id}">
+                <div class="inner">
+                  ${c.ingredients.map((ing, j) => {
+                    const colors = ['#A78BFA','#22D3EE','#FBBF24','#F87171','#34D399','#F472B6'];
+                    const pct = Math.round(100 / c.ingredients.length);
+                    return `<div class="molecule-item"><span>${ing.name}</span><div class="molecule-bar"><div class="molecule-fill" style="width:${pct}%;background:${colors[j % colors.length]};"></div></div><span style="color:${colors[j % colors.length]}">${ing.amt}</span></div>`;
+                  }).join('')}
+                </div>
               </div>
-              <div class="steps-view" id="steps-${c.id}">
-                ${c.steps.map((s, j) => `<div class="step-item"><span class="step-num">${j + 1}.</span>${s}</div>`).join('')}
+              <div class="expandable-section" id="steps-${c.id}">
+                <div class="inner">
+                  ${c.steps.map((s, j) => `<div class="step-item"><span class="step-num">${j + 1}.</span>${s}</div>`).join('')}
+                </div>
               </div>
             </div>
-          `).join('')}
+          `}).join('')}
         </div>
       `;
     }
 
-    window.toggleMolecule = function(id, btn) {
-      const el = document.getElementById('mol-' + id);
+    // ---- 平滑展开切换 ----
+    window.toggleExpand = function(id, btn) {
+      const el = document.getElementById(id);
       if (!el) return;
       const isActive = el.classList.toggle('active');
-      btn.textContent = isActive ? '🍸 普通视图' : '🔬 分子视图';
-    };
-    window.toggleSteps = function(id, btn) {
-      const el = document.getElementById('steps-' + id);
-      if (!el) return;
-      const isActive = el.classList.toggle('active');
-      btn.textContent = isActive ? '📋 收起步骤' : '📋 调酒步骤';
+      btn.classList.toggle('active');
+      if (id.startsWith('mol-')) {
+        btn.textContent = isActive ? '🍸 收起分子' : '🔬 分子视图';
+      } else if (id.startsWith('steps-')) {
+        btn.textContent = isActive ? '📋 收起步骤' : '📋 调酒步骤';
+      }
     };
 
+    // ---- 初始渲染 ----
     recommend();
   </script>
   <script src="../shared/radio.js"></script>
