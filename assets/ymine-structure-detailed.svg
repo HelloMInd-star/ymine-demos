@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1000" viewBox="0 0 1400 1000">
+  <style>
+    .title { font: 22px 'Segoe UI', Roboto, sans-serif; fill:#0a0a18; font-weight:700 }
+    .box { fill:#ffffff; stroke:#A78BFA; stroke-width:2; rx:10 }
+    .shared { fill:#F3E8FF }
+    .demo { fill:#E8FBFF }
+    .label { font:14px 'Segoe UI', Roboto, sans-serif; fill:#0a0a18 }
+    .small { font:12px 'Segoe UI', Roboto, sans-serif; fill:#0a0a18 }
+    .arrow { stroke:#6b7280; stroke-width:2; fill:none; marker-end:url(#arrowhead) }
+    .sub { font:12px 'Segoe UI', Roboto, sans-serif; fill:#374151 }
+  </style>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280" />
+    </marker>
+  </defs>
+  <text x="40" y="40" class="title">Y.MINE — 详尽开发导图（向量→映射→渲染）</text>
+
+  <!-- Shared box -->
+  <rect x="40" y="80" width="420" height="220" class="box shared" />
+  <text x="60" y="110" class="label">shared/（公共模块）</text>
+  <text x="60" y="135" class="sub">vector-mock.js — 六维向量源（preset/random）</text>
+  <text x="60" y="155" class="sub">theme.js — DIMENSIONS, vectorToFlavor, 工具函数</text>
+  <text x="60" y="175" class="sub">styles.css / radio.js — 样式与控件</text>
+  <text x="60" y="195" class="sub">建议拆分：shared/mapping.js（抽离映射逻辑）</text>
+
+  <!-- Central vector node -->
+  <rect x="520" y="140" width="380" height="120" class="box" />
+  <text x="540" y="170" class="label">六维人格向量</text>
+  <text x="540" y="190" class="small">shared/vector-mock.js → presetVector / randomVector</text>
+
+  <path d="M460 200 L520 200" class="arrow" />
+
+  <!-- Demo clusters -->
+  <rect x="940" y="20" width="420" height="160" class="box demo" />
+  <text x="960" y="45" class="label">cocktail</text>
+  <text x="960" y="65" class="sub">流程：向量 → vectorToFlavor → cosineSimilarity → 排序 → render</text>
+  <text x="960" y="85" class="sub">关键：recommend(), getMatchReasons()</text>
+
+  <rect x="940" y="200" width="420" height="160" class="box demo" />
+  <text x="960" y="225" class="label">music</text>
+  <text x="960" y="245" class="sub">流程：向量 → getStyleRecommendations → getAudioParams → Web Audio 合成</text>
+  <text x="960" y="265" class="sub">关键：startAmbient(), createReverbBuffer()</text>
+
+  <rect x="940" y="380" width="420" height="160" class="box demo" />
+  <text x="960" y="405" class="label">passport</text>
+  <text x="960" y="425" class="sub">流程：面具/真实向量 → computeDiff → buildInsight → render & 导出</text>
+  <text x="960" y="445" class="sub">关键：computeDiff(), buildInsight(), makeDocNo()</text>
+
+  <rect x="940" y="560" width="420" height="160" class="box demo" />
+  <text x="960" y="585" class="label">poker / chess / balance</text>
+  <text x="960" y="605" class="sub">各自为场景映射与仿真（self-contained index.html）</text>
+
+  <!-- Arrows from vector to demos -->
+  <path d="M900 200 L940 100" class="arrow" />
+  <path d="M900 200 L940 260" class="arrow" />
+  <path d="M900 200 L940 420" class="arrow" />
+  <path d="M900 200 L940 580" class="arrow" />
+
+  <!-- Sub-components for cocktail -->
+  <rect x="60" y="320" width="380" height="120" class="box" />
+  <text x="80" y="350" class="label">cocktail/index.html</text>
+  <text x="80" y="370" class="sub">UI：sliders, presets, recommend 按钮</text>
+  <text x="80" y="390" class="sub">数据：LIQUOR_LIBRARY（20 items）</text>
+  <text x="80" y="410" class="sub">算法入口：recommend()（余弦相似度 + 时段加成）</text>
+
+  <path d="M420 200 L420 320" class="arrow" />
+  <path d="M420 380 L460 380" class="arrow" />
+
+  <!-- Footer note -->
+  <text x="40" y="980" class="small">生成：详细开发导图（assets/ymine-structure-detailed.svg）。需要 PNG 我可以再生成并提交。</text>
+</svg>
